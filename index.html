@@ -386,7 +386,7 @@ button,a,summary,label,input[type=range]{touch-action:manipulation}
 .vtoast.on{opacity:1;pointer-events:auto;transform:translate(-50%,0) scale(1)}
 .vtoast p{margin:0;font-weight:600;line-height:1.4;color:var(--ink)}
 .vtoast .vi{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:11px;color:var(--tz);background:color-mix(in srgb,var(--tz) 14%,transparent);font-size:1.15rem}
-.tzsync{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;font-size:.85rem;color:var(--mute)}.tzsync .tzs-i{color:var(--tz);display:inline-flex}.tzsync button{font-size:.8rem;padding:3px 12px}.tzsync button.p{background:var(--tz);color:#fff;border-color:var(--tz)}.tzsync [hidden]{display:none!important}.tzn{position:fixed;top:calc(76px + env(safe-area-inset-top,0px));left:50%;transform:translate(-50%,-12px);z-index:70;width:max-content;max-width:min(92vw,420px);box-sizing:border-box;background:var(--card);color:var(--ink);border:1px solid var(--tz);border-radius:14px;padding:12px 14px;box-shadow:0 12px 32px -10px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s,transform .3s}.tzn.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}.tzn p{margin:0 0 8px;font-size:.9rem}.tzn .r{display:flex;gap:8px;flex-wrap:wrap}.tzn button{font-size:.8rem;padding:3px 12px}.tzn button.p{background:var(--tz);color:#fff;border-color:var(--tz)}.tzn [hidden]{display:none!important}
+.tzsync{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;font-size:.85rem;color:var(--mute)}.tzsync .tzs-i{color:var(--tz);display:inline-flex}.tzsync button{font-size:.8rem;padding:3px 12px}.tzsync button.p{background:var(--tz);color:#fff;border-color:var(--tz)}.tzsync [hidden]{display:none!important}.mini.big{height:14px;border-radius:7px}.sylp{border-top:1px solid var(--line);padding:14px 0}.sylp:first-of-type{border-top:0}.sylp .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}.sylp .top strong{font-size:1.02rem}.sylp .top span{font-weight:700;color:var(--acc)}.sylp .top.sub{margin-top:10px;font-size:.85rem;color:var(--mute)}.sylp .top.sub span{font-weight:500;color:var(--mute)}.sylp button{margin-top:10px}.pnav{margin:0 0 14px}.sess{margin:6px 0 8px;padding-left:20px;font-size:.88rem}.sess li{margin:5px 0}.sess .st{font-weight:600}.sess button{font-size:.75rem;padding:1px 8px;margin-left:6px}.exb{display:inline-block;padding:1px 8px;border-radius:99px;font-size:.78rem;font-weight:700;background:var(--empty);margin-left:6px}.exf{display:block;font-size:.8rem;color:var(--mute);margin-top:2px}.tzn{position:fixed;top:calc(76px + env(safe-area-inset-top,0px));left:50%;transform:translate(-50%,-12px);z-index:70;width:max-content;max-width:min(92vw,420px);box-sizing:border-box;background:var(--card);color:var(--ink);border:1px solid var(--tz);border-radius:14px;padding:12px 14px;box-shadow:0 12px 32px -10px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s,transform .3s}.tzn.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}.tzn p{margin:0 0 8px;font-size:.9rem}.tzn .r{display:flex;gap:8px;flex-wrap:wrap}.tzn button{font-size:.8rem;padding:3px 12px}.tzn button.p{background:var(--tz);color:#fff;border-color:var(--tz)}.tzn [hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -424,7 +424,7 @@ button,a,summary,label,input[type=range]{touch-action:manipulation}
 <details open><summary>The top of the page</summary>
 <ul><li><b>Rank banner:</b> your rank (of 37), your shards and how many more you need for the next rank.</li>
 <li><b>Wallet:</b> <i class="ic ic-gem"></i> Tanzanite shards (of 10,000) and <i class="ic ic-sparkle"></i> Stardust, plus the Marketplace and Backup buttons.</li>
-<li><b>Tabs:</b> Overview, one per subject, Study log, Exam files and To revise.</li>
+<li><b>Tabs:</b> Overview, Syllabus, one per subject, Study log, Exam files and To revise.</li>
 <li><b>Bottom left:</b> this guide and the focus sounds (bird icon). <b>Bottom right:</b> the calendar and the timer.</li></ul></details>
 
 <details><summary>Tracking a subject</summary>
@@ -584,7 +584,7 @@ function logHtml(){
   var tzr=SUBJ.map(function(sb){return '<div class="tzrow"><span>'+sb.name+'</span><b>'+fmt(subjPct(sb)*25)+' / 2,500</b></div>'}).join("");
   h+='<section class="paper"><h2>Currencies</h2><div class="tzrow"><span><i class="ic ic-sparkle"></i> Stardust</span><b style="color:var(--acc2)">'+fmt(c.total-spent())+'</b></div><p class="note">Earned '+fmt(c.total)+', spent '+fmt(spent())+'. Stardust grows with the hours you study and how today compares with your peak day.</p><div class="tzrow"><span><i class="ic ic-gem"></i> Tanzanite shards</span><b>'+fmt(allPct()*100)+' / 10,000</b></div><p class="note">Limited supply. Each subject holds 2,500 shards, released as you cover its syllabus.</p>'+tzr+'</section>';
   var prev=L.length>0,has=c.rows.length;
-  h+='<section class="paper logform"><h2>Log a study session</h2><p class="note">Log hours by hand here, or use the timer at the bottom right and it adds your session for you.</p>';
+  h+='<section class="paper logform"><h2>Log a study session</h2><p class="note">Log hours by hand here, or use the timer at the bottom right and it adds your session for you. Every session you log on the same day is added to that day, never replaced.</p>';
   if(DRAFT.step===1){
     h+='<label class="f" for="lh">How many hours did you study?</label><input type="number" id="lh" min="0" max="24" step="0.25" value="'+esc(DRAFT.h)+'" placeholder="e.g. 3.5"><label class="f" for="ld">Date</label><input type="date" id="ld" value="'+(DRAFT.d||today())+'" max="'+today()+'">'
     +(DRAFT.err?'<p class="err">'+esc(DRAFT.err)+'</p>':'')+'<button class="primary" data-act="next">Next</button>';
@@ -594,7 +594,7 @@ function logHtml(){
     h+=(DRAFT.err?'<p class="err">'+esc(DRAFT.err)+'</p>':'')+'<button data-act="back">Back</button> <button class="primary" data-act="save">Collect Stardust</button>';
   }
   h+='</section>'+chartHtml();
-  h+='<section class="paper"><h2>History</h2>'+(has?c.rows.slice().reverse().map(function(q){return '<div class="hist"><strong>'+q.e.d+'</strong>, '+q.e.h+' h <span class="sd">+'+fmt(q.sd)+' Stardust</span>'+(q.np?" (peak day)":"")+'<p>'+esc(q.e.n)+'</p><button data-act="del" data-id="'+q.e.d+'">Delete</button></div>'}).join(""):'<p class="note">No sessions yet. Your first log sets the baseline for your peak day.</p>')+'</section>';
+  h+='<section class="paper"><h2>History</h2>'+(has?c.rows.slice().reverse().map(function(q){return '<div class="hist"><strong>'+q.e.d+'</strong>, '+q.e.h+' h'+(q.e.s&&q.e.s.length>1?' total':'')+' <span class="sd">+'+fmt(q.sd)+' Stardust</span>'+(q.np?" (peak day)":"")+(q.e.s&&q.e.s.length>1?'<ol class="sess">'+q.e.s.map(function(x,i){return '<li><span class="st">Session '+(i+1)+(x.t?' at '+esc(x.t):'')+', '+x.h+' h</span> '+esc(x.n)+' <button data-act="sdel" data-id="'+q.e.d+'" data-i="'+i+'">Remove</button></li>'}).join("")+'</ol>':'<p>'+esc(q.e.n)+'</p>')+'<button data-act="del" data-id="'+q.e.d+'">'+(q.e.s&&q.e.s.length>1?'Delete whole day':'Delete')+'</button></div>'}).join(""):'<p class="note">No sessions yet. Your first log sets the baseline for your peak day.</p>')+'</section>';
   return h;
 }
 function animateReward(){
@@ -606,6 +606,9 @@ function animateReward(){
 }
 function act(a){
   var k=a.dataset.act,dd=DRAFT.d||today();
+  if(k==="paperopen"){TAB=a.dataset.s;PSEL=+a.dataset.p;save();tabs();view();scrollTo(0,0);return;}
+  if(k==="sylback"){go("syl");scrollTo(0,0);return;}
+  if(k==="paperall"){PSEL=null;view();scrollTo(0,0);return;}
   if(k==="mkt"){TAB="market";MSG="";save();tabs();view();return;}
   if(k==="rankt"){RANKOPEN=!RANKOPEN;wallet();return;}
   if(k==="bk"){TAB="backup";BKMSG="";BKPEND=null;save();tabs();view();return;}
@@ -668,19 +671,32 @@ function act(a){
     else if(L.length&&!DRAFT.r&&!L.some(function(e){return e.d===dd}))DRAFT.err="Choose how this day compares with your last log.";
     else{
       var ex=L.filter(function(e){return e.d===dd})[0],before=0,add=parseFloat(DRAFT.h);
-      if(ex){var o=calc().rows.filter(function(q){return q.e.d===dd})[0];before=o?o.sd:0;ex.h=Math.min(24,Math.round((ex.h+add)*100)/100);ex.n=ex.n+"; "+DRAFT.n.trim();}
-      else L.push({d:dd,h:Math.min(24,add),n:DRAFT.n.trim(),r:L.length?DRAFT.r:""});
+      if(ex){var o=calc().rows.filter(function(q){return q.e.d===dd})[0];before=o?o.sd:0;addSess(ex,add,DRAFT.n.trim());}
+      else L.push(newDay(dd,add,DRAFT.n.trim(),L.length?DRAFT.r:""));
       var row=calc().rows.filter(function(q){return q.e.d===dd})[0];
       REWARD={row:Object.assign({},row,{sd:row.sd-before}),shown:false};DRAFT={step:1,h:"",n:"",r:"",d:"",err:""};save();tabs();
     }
   }else if(k==="closer")REWARD=null;
   else if(k==="del"){L=L.filter(function(e){return e.d!==a.dataset.id});save();tabs();}
+  else if(k==="sdel"){
+    var de=L.filter(function(e){return e.d===a.dataset.id})[0];
+    if(de&&de.s){de.s.splice(+a.dataset.i,1);if(!de.s.length)L=L.filter(function(e){return e!==de});else{de.h=Math.min(24,sessSum(de));de.n=sessJoin(de);}save();tabs();}
+  }
   else if(k==="range")RANGE=+a.dataset.v;
   view();
 }
 
 var GOODS0=[["Art session, 1 hour",3000],["Write 1 poem",2000],["Watch 2 anime episodes",2000],["Read a book for 30 minutes",2000],["Discord VC",4000],["Spell craft",3000]];
 function goods(){if(!M)M=GOODS0.map(function(g,i){return {id:"d"+i,n:g[0],p:g[1]}});return M;}
+function nowT(){try{return new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});}catch(e){return "";}}
+function sessSum(e){return Math.round(e.s.reduce(function(a,x){return a+x.h},0)*100)/100;}
+function sessJoin(e){return e.s.map(function(x){return x.n}).join("; ");}
+function addSess(e,h,n){
+  if(!e.s)e.s=[{h:e.h,n:e.n,t:""}];
+  e.s.push({h:h,n:n,t:nowT()});
+  e.h=Math.min(24,sessSum(e));e.n=sessJoin(e);
+}
+function newDay(d,h,n,r){return {d:d,h:Math.min(24,h),n:n,r:r,s:[{h:h,n:n,t:nowT()}]};}
 function spent(){return P.reduce(function(a,x){return a+x.p},0);}
 function marketHtml(){
   var bal=calc().total-spent(),h="";
@@ -707,6 +723,7 @@ function rankHtml(){
   }
   return h;
 }
+var PSEL=null;
 var BKMSG="",BKTXT=false,BKPEND=null,BKPASTE="",FN="",ET="",ES="",ED="",OPENF=null,FDEL=null,FERR="";
 function bkDownload(){
   try{
@@ -716,6 +733,20 @@ function bkDownload(){
     BKMSG="Backup file downloaded. Check your Downloads folder.";
   }catch(e){BKMSG="The download did not work. Use Show as text and copy it.";BKTXT=true;}
   view();
+}
+function sylHtml(){
+  var c=allPct(),pr=allProf();
+  var h='<section class="paper"><h2>Syllabus progress</h2><p class="note">How much of the HSC syllabus you have covered, paper by paper. Open a paper to move its chapter sliders and practice boxes.</p><div class="total"><div class="tile"><b>'+c.toFixed(1)+'%</b><span>Covered, all four subjects</span><div class="mini big"><i style="width:'+c+'%"></i></div></div><div class="tile"><b>'+pr.toFixed(1)+'%</b><span>Proficient</span><div class="mini big"><i style="width:'+pr+'%;background:var(--ok)"></i></div></div></div></section>';
+  SUBJ.forEach(function(sb){
+    h+='<section class="paper"><h2>'+sb.name+'</h2>';
+    sb.papers.forEach(function(P,p){
+      var pc=paperPct(sb,p),pp=paperProf(sb,p),ch=P[1];
+      var started=ch.filter(function(_,k){return S[sb.id+"_"+p+"_"+k][3]>0}).length,done=ch.filter(function(_,k){return S[sb.id+"_"+p+"_"+k][3]>=100}).length;
+      h+='<div class="sylp"><div class="top"><strong>'+esc(P[0])+'</strong><span>'+pc.toFixed(1)+'% covered</span></div><div class="mini big"><i style="width:'+pc+'%"></i></div><div class="top sub"><span>Proficient '+pp.toFixed(1)+'%</span><span>'+done+' of '+ch.length+' chapters complete, '+started+' started</span></div><div class="mini"><i style="width:'+pp+'%;background:var(--ok)"></i></div><button data-act="paperopen" data-s="'+sb.id+'" data-p="'+p+'">Open chapters</button></div>';
+    });
+    h+='</section>';
+  });
+  return h;
 }
 function exportText(){return JSON.stringify({app:"hsc-pcmb",v:1,exported:new Date().toISOString(),S:S,L:L,M:M,P:P,F:F,C:calExport()},null,1);}
 function readBackup(txt){
@@ -733,13 +764,25 @@ function backupHtml(){
   return h+'</section>';
 }
 function fileOf(id){return F.filter(function(x){return x.id===id})[0];}
+function examPct(sc){
+  var m=String(sc).match(/^\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*$/);
+  if(m&&+m[2]>0)return +m[1]/+m[2]*100;
+  m=String(sc).match(/^\s*(\d+(?:\.\d+)?)\s*%\s*$/);
+  return m?+m[1]:null;
+}
 function filesHtml(){
   var h='',f=OPENF&&fileOf(OPENF);
   if(!f){
     OPENF=null;
-    h+='<section class="paper logform"><h2>Exam files</h2><p class="note">Create a file for an exam series or subject, then log each exam and your score inside it.</p><label class="f" for="fn">File name</label><input type="text" id="fn" value="'+esc(FN)+'" placeholder="e.g. Physics model tests">'+(FERR?'<p class="err">'+esc(FERR)+'</p>':'')+'<button class="primary" data-act="filecreate">Create file</button></section><section class="paper"><h2>My files</h2>';
+    var all=[];F.forEach(function(x){x.e.forEach(function(e){all.push({f:x,e:e});});});
+    all.sort(function(p,q){return p.e.d<q.e.d?1:p.e.d>q.e.d?-1:0;});
+    var ps=all.map(function(o){return examPct(o.e.s)}).filter(function(v){return v!==null}),avg=ps.length?ps.reduce(function(x,y){return x+y},0)/ps.length:null;
+    h+='<section class="paper"><h2>Exam files</h2><div class="pstats"><span>Exams logged <b>'+all.length+'</b></span><span>Files <b>'+F.length+'</b></span>'+(avg!==null?'<span>Average score <b class="ok">'+avg.toFixed(0)+'%</b></span>':'')+'</div><p class="note">Every exam you have ever logged, newest first. Scores written like 38/50 or 76% also show as a percentage.</p>';
+    h+=all.length?all.map(function(o){var pc=examPct(o.e.s);return '<div class="good"><div><strong>'+esc(o.e.t)+'</strong>, '+esc(o.e.s)+(pc!==null?'<span class="exb">'+pc.toFixed(0)+'%</span>':'')+'<span class="exf">'+esc(o.e.d)+', in '+esc(o.f.n)+'</span></div><button data-act="fileopen" data-id="'+o.f.id+'">Open file</button></div>'}).join(""):'<p class="note">No exams yet. Create a file below, then log your first exam inside it.</p>';
+    h+='</section><section class="paper"><h2>My files</h2>';
     h+=F.length?F.map(function(x){return '<div class="good"><div><strong>'+esc(x.n)+'</strong><small>'+x.e.length+' exam'+(x.e.length===1?"":"s")+' logged</small></div><button data-act="fileopen" data-id="'+x.id+'">Open</button></div>'}).join(""):'<p class="note">No files yet.</p>';
-    return h+'</section>';
+    h+='</section><section class="paper logform"><h2>New exam file</h2><p class="note">Create a file for an exam series or subject, then log each exam and your score inside it.</p><label class="f" for="fn">File name</label><input type="text" id="fn" value="'+esc(FN)+'" placeholder="e.g. Physics model tests">'+(FERR?'<p class="err">'+esc(FERR)+'</p>':'')+'<button class="primary" data-act="filecreate">Create file</button></section>';
+    return h;
   }
   h+='<section class="paper logform"><button data-act="fileback">Back to files</button><h2 style="margin-top:12px">'+esc(f.n)+'</h2><div class="addrow"><div><label class="f" for="et">Exam</label><input type="text" id="et" value="'+esc(ET)+'" placeholder="e.g. Chapter 4 CQ test"></div><div><label class="f" for="es">Score</label><input type="text" id="es" value="'+esc(ES)+'" placeholder="e.g. 38/50"></div><div><label class="f" for="ed">Date</label><input type="date" id="ed" value="'+(ED||today())+'"></div></div>'+(FERR?'<p class="err">'+esc(FERR)+'</p>':'')+'<button class="primary" data-act="entryadd">Add score</button></section><section class="paper"><h2>Scores</h2>';
   h+=f.e.length?f.e.map(function(e,i){return {e:e,i:i}}).reverse().map(function(o){return '<div class="hist"><strong>'+esc(o.e.t)+'</strong>, '+esc(o.e.s)+' <span style="color:var(--mute)">'+esc(o.e.d)+'</span> <button data-act="entrydel" data-i="'+o.i+'">Delete</button></div>'}).join(""):'<p class="note">No scores yet.</p>';
@@ -747,12 +790,13 @@ function filesHtml(){
 }
 function rng(s,p,k,f,l,v){return '<label>'+l+': '+v+'<input type="range" min="1" max="5" value="'+v+'" data-s="'+s+'" data-p="'+p+'" data-k="'+k+'" data-f="'+f+'"></label>';}
 function tabs(){
-  var h='<button role="tab" data-tab="all" aria-selected="'+(TAB==="all")+'">Overview<small>'+allPct().toFixed(0)+'%</small></button>';
+  var h='<button role="tab" data-tab="all" aria-selected="'+(TAB==="all")+'">Overview<small>'+allPct().toFixed(0)+'%</small></button><button role="tab" data-tab="syl" aria-selected="'+(TAB==="syl")+'">Syllabus</button>';
   SUBJ.forEach(function(s){h+='<button role="tab" data-tab="'+s.id+'" aria-selected="'+(TAB===s.id)+'">'+s.name+'<small id="tp-'+s.id+'">'+subjPct(s).toFixed(0)+'%</small></button>';});
   h+='<button role="tab" data-tab="log" aria-selected="'+(TAB==="log")+'">Study log</button>';h+='<button role="tab" data-tab="files" aria-selected="'+(TAB==="files")+'">Exam files</button>';h+='<button role="tab" data-tab="todo" aria-selected="'+(TAB==="todo")+'">To revise<small>'+revCount()+'</small></button>';document.getElementById("tabs").innerHTML=h;wallet();
 }
 function view(){
   var v=document.getElementById("view");
+  if(TAB==="syl"){v.innerHTML=sylHtml();return;}
   if(TAB==="backup"){v.innerHTML=backupHtml();return;}
   if(TAB==="files"){v.innerHTML=filesHtml();return;}
   if(TAB==="market"){v.innerHTML=marketHtml();return;}
@@ -767,9 +811,11 @@ function view(){
     v.innerHTML=h+'</div><button id="reset">Reset all progress</button>';
     return;
   }
-  var s=sj(TAB),sc=subjPct(s),sp=subjProf(s);
-  var h='<div class="total"><div class="tile"><b id="sp">'+sc.toFixed(1)+'%</b><span>'+s.name+' covered</span></div><div class="tile"><b id="sq">'+sp.toFixed(1)+'%</b><span>Proficient</span></div><div class="tile"><b id="sr">'+ratio(sp,sc).toFixed(0)+'%</b><span>Proficiency ratio</span></div></div>';
+  var s=sj(TAB),ps=(PSEL!==null&&s.papers[PSEL])?PSEL:null;PSEL=ps;
+  var sc=ps!==null?paperPct(s,ps):subjPct(s),sp=ps!==null?paperProf(s,ps):subjProf(s),lbl=ps!==null?s.papers[ps][0]:s.name;
+  var h=(ps!==null?'<p class="pnav"><button data-act="sylback">Back to syllabus progress</button> <button data-act="paperall">Show all '+s.name+' papers</button></p>':'')+'<div class="total"><div class="tile"><b id="sp">'+sc.toFixed(1)+'%</b><span>'+lbl+' covered</span></div><div class="tile"><b id="sq">'+sp.toFixed(1)+'%</b><span>Proficient</span></div><div class="tile"><b id="sr">'+ratio(sp,sc).toFixed(0)+'%</b><span>Proficiency ratio</span></div></div>';
   s.papers.forEach(function(P,p){
+    if(ps!==null&&p!==ps)return;
     var sh=shares(s,p),ch=P[1],pc=paperPct(s,p),pp=paperProf(s,p);
     h+='<section class="paper"><h2>'+P[0]+'</h2><div class="pstats"><span>Covered <b id="pp'+p+'">'+pc.toFixed(1)+'%</b></span><span>Proficient <b class="ok" id="pq'+p+'">'+pp.toFixed(1)+'%</b></span></div><div class="strip" id="strip'+p+'">'
     +ch.map(function(c,k){return '<div class="seg" style="flex:'+sh[k]+'" title="'+c[0]+'"><i style="width:'+S[s.id+"_"+p+"_"+k][3]+'%"></i><span>'+(k+1)+'</span></div>'}).join("")
@@ -791,6 +837,7 @@ function view(){
 function refresh(){
   var s=sj(TAB);if(!s)return;
   s.papers.forEach(function(P,p){
+    if(PSEL!==null&&p!==PSEL)return;
     var sh=shares(s,p),segs=document.querySelectorAll("#strip"+p+" .seg"),ps=document.querySelectorAll("#pstrip"+p+" .seg");
     var pc=paperPct(s,p),pp=paperProf(s,p);
     document.getElementById("pp"+p).textContent=pc.toFixed(1)+"%";
@@ -804,13 +851,13 @@ function refresh(){
       document.getElementById("sh"+p+"_"+k).textContent=sh[k].toFixed(1)+"% of paper";
     });
   });
-  var sc=subjPct(s),sp=subjProf(s);
+  var sc=PSEL!==null?paperPct(s,PSEL):subjPct(s),sp=PSEL!==null?paperProf(s,PSEL):subjProf(s);
   document.getElementById("sp").textContent=sc.toFixed(1)+"%";
   document.getElementById("sq").textContent=sp.toFixed(1)+"%";
   document.getElementById("sr").textContent=ratio(sp,sc).toFixed(0)+"%";
   tabs();
 }
-function go(t){TAB=t;save();tabs();view();}
+function go(t){TAB=t;PSEL=null;save();tabs();view();}
 document.addEventListener("click",function(e){
   var ac=e.target.closest("[data-act]");if(ac){act(ac);return;}
   var b=e.target.closest("[data-tab]");if(b){go(b.dataset.tab);return;}
@@ -827,7 +874,7 @@ document.getElementById("view").addEventListener("input",function(e){
   var sm=document.getElementById("sm"+t.dataset.p+"_"+t.dataset.k);if(sm&&f<3)sm.textContent=rsum(x);
   save();refresh();
 });
-if(TAB!=="all"&&TAB!=="todo"&&TAB!=="log"&&TAB!=="market"&&TAB!=="backup"&&TAB!=="files"&&!sj(TAB))TAB="all";
+if(TAB!=="all"&&TAB!=="syl"&&TAB!=="todo"&&TAB!=="log"&&TAB!=="market"&&TAB!=="backup"&&TAB!=="files"&&!sj(TAB))TAB="all";
 document.getElementById("view").addEventListener("input",function(e){
   var t=e.target;
   if(t.id==="lh")DRAFT.h=t.value;else if(t.id==="ld")DRAFT.d=t.value;else if(t.id==="ln")DRAFT.n=t.value;else if(t.name==="prod")DRAFT.r=t.value;else if(t.id==="bkpaste")BKPASTE=t.value;else if(t.id==="fn")FN=t.value;else if(t.id==="et")ET=t.value;else if(t.id==="es")ES=t.value;else if(t.id==="ed")ED=t.value;else if(t.id==="mn")MD.n=t.value;else if(t.id==="mp")MD.p=t.value;
@@ -971,8 +1018,8 @@ function tmAct(b){
     if(!note){TU.err="Write what you studied.";tmRender();return;}
     if(!ex&&L.length&&!TU.r){TU.err="Choose how this day compares with your last log.";tmRender();return;}
     var d=TM.d,before=0;
-    if(ex){var o=calc().rows.filter(function(q){return q.e.d===d})[0];before=o?o.sd:0;ex.h=Math.min(24,Math.round((ex.h+hrs)*100)/100);ex.n=ex.n+"; "+note;}
-    else L.push({d:d,h:Math.min(24,hrs),n:note,r:L.length?TU.r:""});
+    if(ex){var o=calc().rows.filter(function(q){return q.e.d===d})[0];before=o?o.sd:0;addSess(ex,hrs,note);}
+    else L.push(newDay(d,hrs,note,L.length?TU.r:""));
     var row=calc().rows.filter(function(q){return q.e.d===d})[0];
     REWARD={row:Object.assign({},row,{sd:row.sd-before}),shown:false};
     TM=null;TU={open:false,k:"",dir:"up",mins:"",pi:-1,note:"",r:"",err:"",dis:false};
@@ -1524,20 +1571,20 @@ document.addEventListener("mouseenter",function(){H.classList.add("pcv")});
 })();
 
 (function(){
-var C=[["all","grid","Overview","Totals across all four subjects"],["syl","layers","Syllabus progress","Chapters, sliders and practice"],["log","bars","Daily progress","Study hours, streak and log"],["files","file","Exam log","Scores from your mocks and tests"],["backup","disk","Backup","Export or restore your data"],["market","bag","Marketplace","Spend Stardust on rewards"]];
+var C=[["all","grid","Overview","Totals across all four subjects"],["syl","layers","Syllabus progress","Chapters, sliders and practice"],["log","bars","Daily progress","Study hours, streak and log"],["files","file","Exam files","Every exam you have sat"],["backup","disk","Backup","Export or restore your data"],["market","bag","Marketplace","Spend Stardust on rewards"]];
 function ic(n){return '<i class="ic ic-'+n+'"></i>';}
 function stat(k){try{
  if(k==="all")return allPct().toFixed(0)+"% covered";
- if(k==="syl")return SUBJ.length+" subjects";
+ if(k==="syl")return SUBJ.reduce(function(a,x){return a+x.papers.length},0)+" papers";
  if(k==="log")return (Math.round(L.reduce(function(a,e){return a+e.h},0)*10)/10)+" h logged";
- if(k==="files")return F.length+" file"+(F.length===1?"":"s");
+ if(k==="files"){var ne=F.reduce(function(a,x){return a+x.e.length},0);return ne+" exam"+(ne===1?"":"s")+" logged";}
  if(k==="backup")return "Keep it safe";
  if(k==="market")return fmt(calc().total-spent())+" Stardust";}catch(e){}return "";}
 function render(){
  var h=new Date().getHours(),g=h<5?"Late night":h<12?"Good morning":h<17?"Good afternoon":"Good evening";
  var x='<p class="hhi">'+g+'. Where to?</p><div class="hgrid">';
  C.forEach(function(c,i){x+='<button class="hcard" type="button" data-h="'+c[0]+'" style="--n:'+i+'"><span class="hi">'+ic(c[1])+'</span><b>'+c[2]+'</b><small>'+c[3]+'</small><em>'+stat(c[0])+'</em></button>';});
- x+='<div class="hsub" id="hsub"><div>'+SUBJ.map(function(s,i){return '<button type="button" data-hs="'+s.id+'" style="--n:'+i+'">'+s.name+'<span>'+subjPct(s).toFixed(0)+'%</span></button>';}).join("")+'</div></div></div>';
+ x+='</div>';
  x+='<p class="hnote">The four buttons at the corners are always with you: guide, sounds, calendar and timer.</p>';
  document.getElementById("home").innerHTML=x;
 }
@@ -1555,7 +1602,6 @@ document.addEventListener("click",function(e){
  if(t.id==="homebtn"){setHome(true);return;}
  if(t.dataset.hs){leave(function(){go(t.dataset.hs)});return;}
  var k=t.dataset.h;
- if(k==="syl"){document.getElementById("hsub").classList.toggle("open");return;}
  leave(function(){if(k==="market"){MSG="";go("market");}else if(k==="backup"){BKMSG="";BKPEND=null;go("backup");}else go(k);});
 });
 document.addEventListener("pointermove",function(e){
