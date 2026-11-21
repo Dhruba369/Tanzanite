@@ -614,9 +614,9 @@ function act(a){
   if(k==="export"){
     var up=(window.claude&&claude.use)?claude.use("downloads"):Promise.resolve(null);
     up.then(function(d){
-      if(!d){BKMSG="Direct download is not available here. Use Show as text and copy it.";BKTXT=true;view();return;}
+      if(!d){bkDownload();return;}
       return d.save({filename:"hsc-pcmb-backup-"+today()+".json",data:exportText()}).then(function(){BKMSG="Backup file saved.";view();},function(er){var dec=er&&er.code==="declined";BKMSG=dec?"Download cancelled.":"The download did not work. Use Show as text and copy it.";if(!dec)BKTXT=true;view();});
-    },function(){BKMSG="Direct download is not available here. Use Show as text and copy it.";BKTXT=true;view();});
+    },function(){bkDownload();});
     return;
   }
   if(k==="bkpaste"){readBackup(BKPASTE);view();return;}
@@ -708,6 +708,15 @@ function rankHtml(){
   return h;
 }
 var BKMSG="",BKTXT=false,BKPEND=null,BKPASTE="",FN="",ET="",ES="",ED="",OPENF=null,FDEL=null,FERR="";
+function bkDownload(){
+  try{
+    var blob=new Blob([exportText()],{type:"application/json"}),u=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=u;a.download="hsc-pcmb-backup-"+today()+".json";document.body.appendChild(a);a.click();
+    setTimeout(function(){try{URL.revokeObjectURL(u);a.remove();}catch(e){}},1500);
+    BKMSG="Backup file downloaded. Check your Downloads folder.";
+  }catch(e){BKMSG="The download did not work. Use Show as text and copy it.";BKTXT=true;}
+  view();
+}
 function exportText(){return JSON.stringify({app:"hsc-pcmb",v:1,exported:new Date().toISOString(),S:S,L:L,M:M,P:P,F:F,C:calExport()},null,1);}
 function readBackup(txt){
   var o;try{o=JSON.parse(txt);}catch(e){BKMSG="That is not valid backup text.";BKPEND=null;return;}
