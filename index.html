@@ -116,7 +116,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .ladder li em{font-style:normal;color:var(--mute);font-size:.75rem;white-space:nowrap}
 .ladder li.done{color:var(--mute)}
 .ladder li.cur{background:var(--tz);color:var(--card);font-weight:800}
-.ladder li.cur em{color:var(--card)}
+.ladder li.cur em{color:var(--card)}.rank .guild{display:block;font-size:.95rem;font-weight:700;color:var(--ink);margin:3px 0 4px;letter-spacing:.02em}.gdot{display:inline-block;width:.72em;height:.72em;border-radius:50%;margin-right:7px;vertical-align:baseline;box-shadow:0 0 0 2px color-mix(in srgb,currentColor 18%,transparent),0 0 8px currentColor}.ladder li small.g,.ladder3 small.g{display:block;font-size:.75rem;font-weight:500;color:inherit;opacity:.85;margin-top:1px}.ladder li.cur .gdot{box-shadow:0 0 0 2px var(--card)}
 button{font:inherit;background:none;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
 button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 
@@ -710,16 +710,27 @@ function marketHtml(){
 }
 
 var RANKS=["The Unnamed","The Wanderer","The Lantern Bearer","The Ember","The Sparrow","The Torchbearer","The Quiet Blade","The Oathsworn","The Iron Vow","The Shieldbreaker","The Wolf of the Road","The Silver Hand","The Storm Caller","The Banner Keeper","The Raven Knight","The Crowless","The Dawn Warden","The Gilded Knight","The Ashen Crown","The Starforged","The Lionheart","The Hollow King","The Moonlit Sage","The Thunder Lord","The Frostborn","The Crimson Regent","The Sun Warden","The Dragon’s Voice","The Throne Breaker","The Eternal Flame","The Chosen One","The Golden Sovereign","The Star King","The Undying","The Crowned Storm","The King in Purple","The Last Sovereign"];
+var GUILD=[["Unranked",""],
+["Bronze 1","#b0773a"],["Bronze 2","#b0773a"],["Bronze 3","#b0773a"],
+["Iron 1","#8a95a0"],["Iron 2","#8a95a0"],["Iron 3","#8a95a0"],
+["Gold 1","#d4a017"],["Gold 2","#d4a017"],["Gold 3","#d4a017"],
+["Diamond 1","#38b6e8"],["Diamond 2","#38b6e8"],["Diamond 3","#38b6e8"],
+["Platinum 1","#9fb3c8"],["Platinum 2","#9fb3c8"],["Platinum 3","#9fb3c8"],
+["Heroic 1","#e8793a"],["Heroic 2","#e8793a"],["Heroic 3","#e8793a"],["Heroic 4","#e8793a"],
+["Grandmaster (Red)","#e5484d"],["Grandmaster (Orange)","#f5812e"],["Grandmaster (Yellow)","#e9b814"],["Grandmaster (Green)","#3fae6a"],["Grandmaster (Turquoise)","#20b8b0"],["Grandmaster (Blue)","#3b7de8"],["Grandmaster (Violet)","#8e5be8"],
+["Legendary (Amethyst)","#9966cc"],["Legendary (Opal)","#7fc8c0"],["Legendary (Sapphire)","#1f55c9"],["Legendary (Emerald)","#1fa971"],["Legendary (Garnet)","#9b2335"],["Legendary (Tanzanite)","#6a3fd1"],
+["Fog of Winter","#9fb7c9"],["Bud of Spring","#6fcf8f"],["Dragon of Summer","#e8643a"],["Sky of Autumn","#e0a030"]];
+function gl(i){var g=GUILD[i]||GUILD[0];return (g[1]?'<i class="gdot" style="background:'+g[1]+'"></i>':'')+g[0];}
 var RANKOPEN=false;
 function rankHtml(){
   var tz=allPct()*100,n=Math.min(37,Math.floor(tz/10000*36)+1),step=10000/36,sub,pc;
   if(n>=37){sub="Top rank reached.";pc=100;}
   else{sub=fmt(Math.ceil(n*step-tz))+" more shards to become "+RANKS[n]+".";pc=(tz-(n-1)*step)/step*100;}
-  var h='<b>'+RANKS[n-1]+'</b><small>Rank '+n+' of 37, '+fmt(tz)+' Tanzanite shards. '+sub+'</small><div class="mini"><i style="width:'+pc+'%;background:var(--tz)"></i></div>';
-  h+='<div class="ladder3"><span>'+(n>1?"Before: "+RANKS[n-2]:"Before: nothing, this is the start")+'</span><span class="now">You: rank '+n+' of 37</span><span>'+(n<37?"Next: "+RANKS[n]:"Next: none, you hold the top rank")+'</span></div>';
+  var h='<b>'+RANKS[n-1]+'</b><span class="guild">'+gl(n-1)+'</span><small>Rank '+n+' of 37, '+fmt(tz)+' Tanzanite shards. '+sub+'</small><div class="mini"><i style="width:'+pc+'%;background:var(--tz)"></i></div>';
+  h+='<div class="ladder3"><span>'+(n>1?"Before: "+RANKS[n-2]+'<small class="g">'+gl(n-2)+'</small>':"Before: nothing, this is the start")+'</span><span class="now">You: rank '+n+' of 37</span><span>'+(n<37?"Next: "+RANKS[n]+'<small class="g">'+gl(n)+'</small>':"Next: none, you hold the top rank")+'</span></div>';
   h+='<button class="rtoggle" data-act="rankt" aria-expanded="'+RANKOPEN+'">'+(RANKOPEN?"Hide all 37 ranks":"Show all 37 ranks")+'</button>';
   if(RANKOPEN){
-    h+='<ol class="ladder">'+RANKS.map(function(nm,i){var c=i+1<n?"done":(i+1===n?"cur":"");return '<li class="'+c+'"><span>'+(i+1)+'. '+nm+(i+1===n?'  (you are here)':'')+'</span><em>'+(i+1<n?"reached, ":"")+fmt(Math.round(i*step))+' shards</em></li>'}).join("")+'</ol>';
+    h+='<ol class="ladder">'+RANKS.map(function(nm,i){var c=i+1<n?"done":(i+1===n?"cur":"");return '<li class="'+c+'"><span>'+(i+1)+'. '+nm+(i+1===n?'  (you are here)':'')+'<small class="g">'+gl(i)+'</small></span><em>'+(i+1<n?"reached, ":"")+fmt(Math.round(i*step))+' shards</em></li>'}).join("")+'</ol>';
   }
   return h;
 }
