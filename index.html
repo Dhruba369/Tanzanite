@@ -386,7 +386,7 @@ button,a,summary,label,input[type=range]{touch-action:manipulation}
 .vtoast.on{opacity:1;pointer-events:auto;transform:translate(-50%,0) scale(1)}
 .vtoast p{margin:0;font-weight:600;line-height:1.4;color:var(--ink)}
 .vtoast .vi{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:11px;color:var(--tz);background:color-mix(in srgb,var(--tz) 14%,transparent);font-size:1.15rem}
-.tzsync{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;font-size:.85rem;color:var(--mute)}.tzsync .tzs-i{color:var(--tz);display:inline-flex}.tzsync button{font-size:.8rem;padding:3px 12px}.tzsync button.p{background:var(--tz);color:#fff;border-color:var(--tz)}.tzsync [hidden]{display:none!important}
+.tzsync{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;font-size:.85rem;color:var(--mute)}.tzsync .tzs-i{color:var(--tz);display:inline-flex}.tzsync button{font-size:.8rem;padding:3px 12px}.tzsync button.p{background:var(--tz);color:#fff;border-color:var(--tz)}.tzsync [hidden]{display:none!important}.tzn{position:fixed;top:calc(76px + env(safe-area-inset-top,0px));left:50%;transform:translate(-50%,-12px);z-index:70;width:max-content;max-width:min(92vw,420px);box-sizing:border-box;background:var(--card);color:var(--ink);border:1px solid var(--tz);border-radius:14px;padding:12px 14px;box-shadow:0 12px 32px -10px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s,transform .3s}.tzn.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}.tzn p{margin:0 0 8px;font-size:.9rem}.tzn .r{display:flex;gap:8px;flex-wrap:wrap}.tzn button{font-size:.8rem;padding:3px 12px}.tzn button.p{background:var(--tz);color:#fff;border-color:var(--tz)}.tzn [hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -1727,7 +1727,7 @@ var CLIENT_ID="383296366488-3tt4167de9ra0f2eau1uvt1sqnoprr4r.apps.googleusercont
 var SCOPE="https://www.googleapis.com/auth/drive.appdata";
 var FILE="tanzanite-progress.json";
 var KEYS=["hscpcmb","hscpcmb_music","hscpcmb_cal","hscpcmb_bunny","tzcustom"];
-var TSK="tzsync_ts",BASE="tzsync_base",FLAG="tzsync_on";
+var TSK="tzsync_ts",BASE="tzsync_base",FLAG="tzsync_on",NEVER="tzsync_never",SNZ="tzsync_snooze";
 var rawSet=Storage.prototype.setItem,rawGet=Storage.prototype.getItem,rawDel=Storage.prototype.removeItem;
 var tok=null,tokExp=0,fileId=null,busy=false,timer=null,tc=null,gp=null,applying=false,state="off",note="";
 function lget(k){try{return rawGet.call(localStorage,k);}catch(e){return null;}}
@@ -1739,17 +1739,35 @@ function hasProgress(){try{var s=JSON.parse(lget("hscpcmb")||"null");return !!(s
 var box=document.createElement("div");box.className="tzsync";box.id="tzsync";
 box.innerHTML='<span class="tzs-i"><i class="ic ic-cloud"></i></span><span class="tzs-t"></span><button type="button" class="tzs-b p"></button><button type="button" class="tzs-o" hidden>Disconnect</button>';
 var tT=box.querySelector(".tzs-t"),tB=box.querySelector(".tzs-b"),tO=box.querySelector(".tzs-o");
+/* nudge pop-up: reminds the person to back up or re-sync after they make changes */
+var nz=document.createElement("div");nz.className="tzn";nz.setAttribute("role","status");
+nz.innerHTML='<p></p><div class="r"><button type="button" class="p tzn-y"></button><button type="button" class="tzn-l">Later</button><button type="button" class="tzn-n">Don\'t remind me</button></div>';
+var nP=nz.querySelector("p"),nY=nz.querySelector(".tzn-y"),nL=nz.querySelector(".tzn-l"),nN=nz.querySelector(".tzn-n"),nKind="",nHide=null,nSess=false,nLast=0,nTimer=null,T0=Date.now();
+function nclose(){nz.classList.remove("on");clearTimeout(nHide);}
+function nshow(kind,text,yes){nKind=kind;nP.textContent=text;nY.textContent=yes;nN.hidden=(kind!=="connect");nz.classList.add("on");clearTimeout(nHide);nHide=setTimeout(nclose,20000);}
+function unsaved(){return (Number(lget(TSK))||0)>(Number(lget(BASE))||0);}
+function nudgeCheck(){
+  if(!configured()||applying||Date.now()-T0<6000)return;
+  var now=Date.now();
+  if(state==="off"){
+    if(lget(NEVER)==="1"||nSess||now<(Number(lget(SNZ))||0)||!hasProgress())return;
+    nSess=true;nshow("connect","Your progress is only saved in this browser. Back it up to Google Drive so you never lose it.","Back up now");
+  }else if(state==="auth"||state==="error"){
+    if(!unsaved()||now-nLast<600000)return;
+    nLast=now;nshow("sync","Your latest changes are not saved to Drive yet.","Sync now");
+  }
+}
 function paint(){
   var t="",b="",o=false;
   if(!configured()){t="Google Drive backup is not set up yet.";b="";}
   else if(state==="off"){t="Back up your progress to Google Drive so it is never lost.";b="Connect";}
   else if(state==="sync"){t=note||"Syncing with Drive...";b="";o=true;}
   else if(state==="on"){t=note||"Saved to Drive.";b="Sync now";o=true;}
-  else if(state==="auth"){t="Drive sync is paused. Sign in again to continue.";b="Reconnect";o=true;}
+  else if(state==="auth"){t="Drive sync is paused"+(unsaved()?" and your latest changes are not saved":"")+". Sign in again to continue.";b="Reconnect";o=true;}
   else if(state==="error"){t="Drive problem: "+note;b="Retry";o=true;}
   tT.textContent=t;tB.textContent=b;tB.hidden=!b;tO.hidden=!o;
 }
-function mount(){var sub=document.querySelector("main .sub");if(sub&&sub.parentNode)sub.parentNode.insertBefore(box,sub.nextSibling);else document.body.insertBefore(box,document.body.firstChild);}
+function mount(){try{document.body.appendChild(nz);}catch(e){}var sub=document.querySelector("main .sub");if(sub&&sub.parentNode)sub.parentNode.insertBefore(box,sub.nextSibling);else document.body.insertBefore(box,document.body.firstChild);}
 function clock(){var d=new Date();return d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});}
 
 /* ---- Google sign-in ---- */
@@ -1825,9 +1843,9 @@ function apply(remote){
 function fail(e){
   busy=false;
   if(e&&e.message==="auth"){state="auth";}else{state="error";note=(e&&e.message)||"unknown";}
-  paint();
+  paint();nudgeCheck();
 }
-function ok(msg){busy=false;state="on";note=msg||("Saved to Drive at "+clock()+".");paint();}
+function ok(msg){busy=false;state="on";note=msg||("Saved to Drive at "+clock()+".");nclose();paint();}
 function sync(prompt,fromClick){
   if(busy||!configured())return Promise.resolve();
   busy=true;state="sync";note="Syncing with Drive...";paint();
@@ -1854,6 +1872,7 @@ function push(){
 }
 function touch(){
   lset(TSK,Date.now());
+  clearTimeout(nTimer);nTimer=setTimeout(nudgeCheck,2500);
   if(state==="off"||!configured())return;
   clearTimeout(timer);timer=setTimeout(function(){if(busy){timer=setTimeout(push,2000);}else push();},4000);
 }
@@ -1874,6 +1893,10 @@ tO.addEventListener("click",function(){
   tok=null;fileId=null;state="off";note="";paint();
 });
 
+nY.addEventListener("click",function(){nclose();busy=false;sync("",true);});
+nL.addEventListener("click",function(){if(nKind==="connect")lset(SNZ,Date.now()+6*3600*1000);nclose();});
+nN.addEventListener("click",function(){lset(NEVER,"1");nclose();});
+setTimeout(function(){if(state==="auth"||state==="error")nudgeCheck();},6500);
 mount();
 if(configured()&&lget(FLAG)==="1"){state="sync";note="Checking Drive...";paint();sync("none");}
 else paint();
