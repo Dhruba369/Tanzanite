@@ -387,6 +387,41 @@ button,a,summary,label,input[type=range]{touch-action:manipulation}
 .vtoast p{margin:0;font-weight:600;line-height:1.4;color:var(--ink)}
 .vtoast .vi{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:11px;color:var(--tz);background:color-mix(in srgb,var(--tz) 14%,transparent);font-size:1.15rem}
 .tzsync{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;font-size:.85rem;color:var(--mute)}.tzsync .tzs-i{color:var(--tz);display:inline-flex}.tzsync button{font-size:.8rem;padding:3px 12px}.tzsync button.p{background:var(--tz);color:#fff;border-color:var(--tz)}.tzsync [hidden]{display:none!important}.mini.big{height:14px;border-radius:7px}.sylp{border-top:1px solid var(--line);padding:14px 0}.sylp:first-of-type{border-top:0}.sylp .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}.sylp .top strong{font-size:1.02rem}.sylp .top span{font-weight:700;color:var(--acc)}.sylp .top.sub{margin-top:10px;font-size:.85rem;color:var(--mute)}.sylp .top.sub span{font-weight:500;color:var(--mute)}.sylp button{margin-top:10px}.pnav{margin:0 0 14px}.sess{margin:6px 0 8px;padding-left:20px;font-size:.88rem}.sess li{margin:5px 0}.sess .st{font-weight:600}.sess button{font-size:.75rem;padding:1px 8px;margin-left:6px}.exb{display:inline-block;padding:1px 8px;border-radius:99px;font-size:.78rem;font-weight:700;background:var(--empty);margin-left:6px}.exf{display:block;font-size:.8rem;color:var(--mute);margin-top:2px}.tzn{position:fixed;top:calc(76px + env(safe-area-inset-top,0px));left:50%;transform:translate(-50%,-12px);z-index:70;width:max-content;max-width:min(92vw,420px);box-sizing:border-box;background:var(--card);color:var(--ink);border:1px solid var(--tz);border-radius:14px;padding:12px 14px;box-shadow:0 12px 32px -10px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s,transform .3s}.tzn.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}.tzn p{margin:0 0 8px;font-size:.9rem}.tzn .r{display:flex;gap:8px;flex-wrap:wrap}.tzn button{font-size:.8rem;padding:3px 12px}.tzn button.p{background:var(--tz);color:#fff;border-color:var(--tz)}.tzn [hidden]{display:none!important}
+
+/* ===== quick links launcher ===== */
+.quicklinks{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:16px;z-index:85;display:none}
+body.at-home .quicklinks{display:block;animation:hup .65s var(--ease) both}
+.ql-trigger{width:52px;height:52px;border:0;border-radius:50%;display:grid;place-items:center;background:var(--tz);color:#fff;font-size:1.45rem;font-weight:500;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:transform .25s var(--spring),box-shadow .25s}
+.ql-trigger:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 12px 25px -8px rgba(0,0,0,.4),0 0 0 4px var(--tz-glow)}
+.ql-panel{position:absolute;right:0;top:62px;width:min(310px,calc(100vw - 28px));padding:13px;border:1px solid var(--line);border-radius:19px;background:var(--card);color:var(--ink);box-shadow:0 18px 50px rgba(15,25,35,.22);backdrop-filter:blur(18px);transform-origin:top right;animation:qlIn .22s var(--spring) both}
+.ql-panel[hidden]{display:none}
+@keyframes qlIn{from{opacity:0;transform:translateY(-8px) scale(.96)}to{opacity:1;transform:none}}
+.ql-head{display:flex;align-items:center;justify-content:space-between;padding:2px 3px 10px}
+.ql-head strong{font-size:.92rem;letter-spacing:.01em}
+.ql-head span{font-size:.72rem;color:var(--mute)}
+.ql-list{display:grid;gap:5px}
+.ql-link{display:flex;align-items:center;gap:11px;width:100%;padding:9px 10px;border:0;border-radius:12px;background:transparent;color:var(--ink);text-align:left;text-decoration:none;transition:background .18s,transform .18s}
+.ql-link:hover{background:var(--bg);transform:translateX(2px)}
+.ql-icon{width:31px;height:31px;flex:none;display:grid;place-items:center;border-radius:9px;background:var(--bg);overflow:hidden;font-size:.75rem;font-weight:800;color:var(--mute)}
+.ql-icon img{width:21px;height:21px;object-fit:contain}
+.ql-link-name{font-size:.88rem;font-weight:650;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ql-link-host{display:block;font-size:.68rem;font-weight:400;color:var(--mute);margin-top:1px}
+.ql-add{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:9px;padding:10px;border:1px dashed var(--line);border-radius:12px;background:transparent;color:var(--tz);font-weight:700}
+.ql-add:hover{background:var(--bg)}
+.ql-form{display:grid;gap:8px;margin-top:10px;padding:11px;border-radius:13px;background:var(--bg)}
+.ql-form[hidden]{display:none}
+.ql-form label{font-size:.72rem;font-weight:700;color:var(--mute);margin-bottom:-5px}
+.ql-form input{width:100%;min-width:0;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);outline:none}
+.ql-form input:focus{border-color:var(--tz);box-shadow:0 0 0 3px var(--tz-glow)}
+.ql-form-actions{display:flex;gap:7px;justify-content:flex-end;margin-top:2px}
+.ql-form-actions button{padding:8px 12px;border-radius:9px;font-weight:700}
+.ql-save{border:0;background:var(--tz);color:white}
+.ql-cancel{border:1px solid var(--line);background:var(--card);color:var(--mute)}
+.ql-error{font-size:.72rem;color:#c65353;min-height:1em}
+.ql-remove{border:0;background:transparent;color:var(--mute);font-size:1rem;padding:4px 7px;border-radius:7px}
+.ql-remove:hover{background:var(--bg);color:#c65353}
+@media(max-width:480px){.quicklinks{top:calc(10px + env(safe-area-inset-top,0px));right:10px}.ql-panel{top:60px}}
+
 </style>
 </head>
 <body>
@@ -399,6 +434,7 @@ button,a,summary,label,input[type=range]{touch-action:manipulation}
 <div class="tabs" role="tablist" id="tabs"></div>
 <div id="home"></div>
 <button class="homefab" id="homebtn" type="button" aria-label="Home"><i class="ic ic-home"></i><span class="lbl"> Home</span></button>
+<div class="quicklinks" id="quicklinks"><button class="ql-trigger" id="qlTrigger" type="button" aria-label="Quick links" aria-expanded="false" title="Quick links"><svg aria-hidden="true" viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m10 13.5 4-4"/><path d="M7.5 15.5 5.8 17.2a4 4 0 0 1-5.6-5.6l4-4a4 4 0 0 1 5.6 0"/><path d="m16.5 8.5 1.7-1.7a4 4 0 0 1 5.6 5.6l-4 4a4 4 0 0 1-5.6 0"/></svg></button><section class="ql-panel" id="qlPanel" aria-label="Quick links menu" hidden><div class="ql-head"><strong>Quick links</strong><span>Your study tools</span></div><div class="ql-list" id="qlList"></div><button class="ql-add" id="qlAdd" type="button"><span aria-hidden="true">＋</span> Add a website</button><form class="ql-form" id="qlForm" hidden><label for="qlName">Website name</label><input id="qlName" maxlength="48" placeholder="e.g. Khan Academy" required><label for="qlUrl">Website URL</label><input id="qlUrl" type="url" inputmode="url" placeholder="https://example.com" required><div class="ql-error" id="qlError" aria-live="polite"></div><div class="ql-form-actions"><button class="ql-cancel" id="qlCancel" type="button">Cancel</button><button class="ql-save" type="submit">Add link</button></div></form></section></div>
 <div id="view"></div>
 <footer class="credit">Created by <b>Alvi Hossain Dhruba</b></footer>
 </main>
@@ -1784,7 +1820,7 @@ var CLIENT_ID="383296366488-3tt4167de9ra0f2eau1uvt1sqnoprr4r.apps.googleusercont
 var SCOPE="https://www.googleapis.com/auth/drive.appdata";
 var FILE="tanzanite-progress.json";
 var KEYS=["hscpcmb","hscpcmb_music","hscpcmb_cal","hscpcmb_bunny","tzcustom"];
-var TSK="tzsync_ts",BASE="tzsync_base",FLAG="tzsync_on",NEVER="tzsync_never",SNZ="tzsync_snooze";
+var TSK="tzsync_ts",BASE="tzsync_base",FLAG="tzsync_on",NEVER="tzsync_never",SNZ="tzsync_snooze",HINT="tzsync_hint";
 var rawSet=Storage.prototype.setItem,rawGet=Storage.prototype.getItem,rawDel=Storage.prototype.removeItem;
 var tok=null,tokExp=0,fileId=null,busy=false,timer=null,tc=null,gp=null,applying=false,state="off",note="";
 function lget(k){try{return rawGet.call(localStorage,k);}catch(e){return null;}}
@@ -1794,8 +1830,8 @@ function hasProgress(){try{var s=JSON.parse(lget("hscpcmb")||"null");return !!(s
 
 /* ---- UI ---- */
 var box=document.createElement("div");box.className="tzsync";box.id="tzsync";
-box.innerHTML='<span class="tzs-i"><i class="ic ic-cloud"></i></span><span class="tzs-t"></span><button type="button" class="tzs-b p"></button><button type="button" class="tzs-o" hidden>Disconnect</button>';
-var tT=box.querySelector(".tzs-t"),tB=box.querySelector(".tzs-b"),tO=box.querySelector(".tzs-o");
+box.innerHTML='<span class="tzs-i"><i class="ic ic-cloud"></i></span><span class="tzs-t"></span><button type="button" class="tzs-b p"></button><button type="button" class="tzs-s" hidden>Switch account</button><button type="button" class="tzs-o" hidden>Disconnect</button>';
+var tT=box.querySelector(".tzs-t"),tB=box.querySelector(".tzs-b"),tO=box.querySelector(".tzs-o"),tS=box.querySelector(".tzs-s");
 /* nudge pop-up: reminds the person to back up or re-sync after they make changes */
 var nz=document.createElement("div");nz.className="tzn";nz.setAttribute("role","status");
 nz.innerHTML='<p></p><div class="r"><button type="button" class="p tzn-y"></button><button type="button" class="tzn-l">Later</button><button type="button" class="tzn-n">Don\'t remind me</button></div>';
@@ -1819,10 +1855,10 @@ function paint(){
   if(!configured()){t="Google Drive backup is not set up yet.";b="";}
   else if(state==="off"){t="Back up your progress to Google Drive so it is never lost.";b="Connect";}
   else if(state==="sync"){t=note||"Syncing with Drive...";b="";o=true;}
-  else if(state==="on"){t=note||"Saved to Drive.";b="Sync now";o=true;}
+  else if(state==="on"){t=(note||"Saved to Drive.")+(lget(HINT)?" Account: "+lget(HINT):"");b="Sync now";o=true;}
   else if(state==="auth"){t="Drive sync is paused"+(unsaved()?" and your latest changes are not saved":"")+". Sign in again to continue.";b="Reconnect";o=true;}
   else if(state==="error"){t="Drive problem: "+note;b="Retry";o=true;}
-  tT.textContent=t;tB.textContent=b;tB.hidden=!b;tO.hidden=!o;
+  tT.textContent=t;tB.textContent=b;tB.hidden=!b;tO.hidden=!o;tS.hidden=!(state==="on"||state==="auth"||state==="error");
 }
 function mount(){try{document.body.appendChild(nz);}catch(e){}var sub=document.querySelector("main .sub");if(sub&&sub.parentNode)sub.parentNode.insertBefore(box,sub.nextSibling);else document.body.insertBefore(box,document.body.firstChild);}
 function clock(){var d=new Date();return d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});}
@@ -1845,9 +1881,9 @@ function getToken(prompt){
       if(!tc)tc=google.accounts.oauth2.initTokenClient({client_id:CLIENT_ID,scope:SCOPE,
         callback:function(r){if(tc._cb)tc._cb(r);},error_callback:function(e){if(tc._er)tc._er(e);}});
       var done=false,to=setTimeout(function(){if(!done){done=true;rej(new Error("auth"));}},20000);
-      tc._cb=function(r){if(done)return;done=true;clearTimeout(to);if(r&&r.access_token){tok=r.access_token;tokExp=Date.now()+(r.expires_in||3600)*1000;res(tok);}else rej(new Error("auth"));};
+      tc._cb=function(r){if(done)return;done=true;clearTimeout(to);if(r&&r.access_token){tok=r.access_token;tokExp=Date.now()+(r.expires_in||3600)*1000;learn();res(tok);}else rej(new Error("auth"));};
       tc._er=function(){if(done)return;done=true;clearTimeout(to);rej(new Error("auth"));};
-      tc.requestAccessToken({prompt:prompt});
+      var ov={prompt:prompt},hh=lget(HINT);if(hh&&prompt!=="select_account")ov.hint=hh;tc.requestAccessToken(ov);
     },rej);
   });
 }
@@ -1861,6 +1897,11 @@ function api(url,opt){
     return r;
   });
 }
+function learn(){
+  try{fetch("https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)",{headers:{Authorization:"Bearer "+tok}})
+    .then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&j.user&&j.user.emailAddress){lset(HINT,j.user.emailAddress);paint();}}).catch(function(){});}catch(e){}
+}
+function pr(){return lget(HINT)?"":"select_account";}
 function find(){
   if(fileId)return Promise.resolve(fileId);
   return api("https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&pageSize=1&fields=files(id)&q="+encodeURIComponent("name='"+FILE+"'"))
@@ -1942,15 +1983,18 @@ Storage.prototype.setItem=function(k,v){
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden"&&timer){clearTimeout(timer);timer=null;push();}});
 
 tB.addEventListener("click",function(){
-  if(state==="error"||state==="auth"||state==="on"||state==="off"){busy=false;sync("",true);}
+  if(state==="error"||state==="auth"||state==="on"||state==="off"){busy=false;sync(pr(),true);}
+});
+tS.addEventListener("click",function(){
+  clearTimeout(timer);rawDel.call(localStorage,HINT);lset(BASE,"0");tok=null;fileId=null;busy=false;sync("select_account",true);
 });
 tO.addEventListener("click",function(){
-  clearTimeout(timer);rawDel.call(localStorage,FLAG);
+  clearTimeout(timer);rawDel.call(localStorage,FLAG);rawDel.call(localStorage,HINT);
   try{if(tok&&window.google&&google.accounts&&google.accounts.oauth2)google.accounts.oauth2.revoke(tok,function(){});}catch(e){}
   tok=null;fileId=null;state="off";note="";paint();
 });
 
-nY.addEventListener("click",function(){nclose();busy=false;sync("",true);});
+nY.addEventListener("click",function(){nclose();busy=false;sync(pr(),true);});
 nL.addEventListener("click",function(){if(nKind==="connect")lset(SNZ,Date.now()+6*3600*1000);nclose();});
 nN.addEventListener("click",function(){lset(NEVER,"1");nclose();});
 setTimeout(function(){if(state==="auth"||state==="error")nudgeCheck();},6500);
@@ -1959,5 +2003,64 @@ if(configured()&&lget(FLAG)==="1"){state="sync";note="Checking Drive...";paint()
 else paint();
 })();
 </script>
+
+<script>
+(function(){
+  var KEY="tanzaniteQuickLinksV1";
+  var defaults=[
+    {name:"Quizlet",url:"https://quizlet.com/"},
+    {name:"Desmos",url:"https://www.desmos.com/calculator"},
+    {name:"MindMup",url:"https://www.mindmup.com/"}
+  ];
+  var trigger=document.getElementById("qlTrigger"),panel=document.getElementById("qlPanel"),
+      list=document.getElementById("qlList"),add=document.getElementById("qlAdd"),
+      form=document.getElementById("qlForm"),nameInput=document.getElementById("qlName"),
+      urlInput=document.getElementById("qlUrl"),error=document.getElementById("qlError");
+  if(!trigger||!panel)return;
+  function read(){
+    try{var saved=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(saved))return saved;}catch(e){}
+    return defaults.slice();
+  }
+  var links=read();
+  function persist(){try{localStorage.setItem(KEY,JSON.stringify(links));}catch(e){}}
+  function host(url){try{return new URL(url).hostname.replace(/^www\./,"");}catch(e){return url;}}
+  function render(){
+    list.textContent="";
+    links.forEach(function(item,index){
+      var a=document.createElement("a");a.className="ql-link";a.href=item.url;a.target="_blank";a.rel="noopener noreferrer";
+      var icon=document.createElement("span");icon.className="ql-icon";
+      var img=document.createElement("img");img.alt="";img.loading="lazy";
+      img.src="https://www.google.com/s2/favicons?domain_url="+encodeURIComponent(item.url)+"&sz=64";
+      img.onerror=function(){icon.textContent=(item.name||"?").slice(0,1).toUpperCase();};
+      icon.appendChild(img);
+      var label=document.createElement("span");label.className="ql-link-name";label.textContent=item.name;
+      var domain=document.createElement("span");domain.className="ql-link-host";domain.textContent=host(item.url);label.appendChild(domain);
+      a.appendChild(icon);a.appendChild(label);list.appendChild(a);
+      if(index>=defaults.length){
+        var remove=document.createElement("button");remove.type="button";remove.className="ql-remove";remove.title="Remove "+item.name;remove.setAttribute("aria-label","Remove "+item.name);remove.textContent="×";
+        remove.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();links.splice(index,1);persist();render();});
+        a.appendChild(remove);
+      }
+    });
+  }
+  function close(){panel.hidden=true;trigger.setAttribute("aria-expanded","false");}
+  trigger.addEventListener("click",function(){panel.hidden=!panel.hidden;trigger.setAttribute("aria-expanded",String(!panel.hidden));if(!panel.hidden)render();});
+  add.addEventListener("click",function(){form.hidden=false;add.hidden=true;nameInput.focus();});
+  document.getElementById("qlCancel").addEventListener("click",function(){form.reset();error.textContent="";form.hidden=true;add.hidden=false;});
+  form.addEventListener("submit",function(e){
+    e.preventDefault();error.textContent="";
+    var n=nameInput.value.trim(),u=urlInput.value.trim();
+    try{var parsed=new URL(u);if(parsed.protocol!=="http:"&&parsed.protocol!=="https:")throw new Error();u=parsed.href;}
+    catch(ex){error.textContent="Enter a valid website URL beginning with https://";return;}
+    if(!n){error.textContent="Give this website a name.";return;}
+    if(links.some(function(x){return x.url===u||x.name.toLowerCase()===n.toLowerCase();})){error.textContent="That website is already in your list.";return;}
+    links.push({name:n,url:u});persist();render();form.reset();form.hidden=true;add.hidden=false;
+  });
+  document.addEventListener("click",function(e){if(!e.target.closest("#quicklinks"))close();});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")close();});
+  render();
+})();
+</script>
+
 </body>
 </html>
