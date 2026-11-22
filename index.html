@@ -423,6 +423,23 @@ body.at-home .quicklinks{display:block;animation:hup .65s var(--ease) both}
 @media(max-width:480px){.quicklinks{top:calc(10px + env(safe-area-inset-top,0px));right:10px}.ql-panel{top:60px}}
 
 .ratingopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;margin:8px 0 12px}.ratingopts label{display:block;position:relative;cursor:pointer;margin:0}.ratingopts input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}.ratingopts .rt{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;height:100%;padding:14px 8px 12px;text-align:center;border-radius:var(--r,16px);border:1px solid var(--line);background:color-mix(in srgb,var(--card) 92%,transparent);box-shadow:var(--sh1,none);transition:transform .35s var(--spring,ease),box-shadow .35s var(--ease,ease),border-color .3s,background .3s}.ratingopts .rt b{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;font-size:1.05rem;font-weight:800;color:var(--tz);background:color-mix(in srgb,var(--tz) 12%,var(--card));border:1px solid color-mix(in srgb,var(--tz) 30%,var(--line));transition:transform .35s var(--spring,ease),background .3s,color .3s,border-color .3s}.ratingopts .rt em{font-style:normal;font-size:.76rem;font-weight:600;line-height:1.25;color:var(--mute);transition:color .3s}.ratingopts label:hover .rt{transform:translateY(-3px);border-color:color-mix(in srgb,var(--tz) 55%,var(--line));box-shadow:var(--sh2,none)}.ratingopts input:checked+.rt{transform:translateY(-2px);border-color:var(--tz);background:linear-gradient(145deg,color-mix(in srgb,var(--acc) 16%,var(--card)),color-mix(in srgb,var(--tz) 22%,var(--card)));box-shadow:0 10px 24px -12px var(--tz)}.ratingopts input:checked+.rt b{transform:scale(1.12);color:#fff;border-color:transparent;background:linear-gradient(135deg,var(--acc),var(--tz))}.ratingopts input:checked+.rt em{color:var(--ink)}.ratingopts input:focus-visible+.rt{outline:2px solid var(--tz);outline-offset:3px}@media (max-width:420px){.ratingopts{grid-template-columns:repeat(2,1fr)}.ratingopts label:last-child{grid-column:1/-1}}.ratepill{display:inline-block;padding:2px 7px;border-radius:99px;background:var(--soft);color:var(--acc2);font-size:.78em;margin-left:5px}
+
+/* fullscreen floating button */
+.ic-fs{--m:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5%22/%3E%3C/svg%3E")}
+.ic-fsx{--m:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M9 4v5H4 M15 4v5h5 M9 20v-5H4 M15 20v-5h5%22/%3E%3C/svg%3E")}
+.fsfab{position:absolute;right:0;bottom:calc(100% + 72px);min-width:52px;height:52px;border-radius:26px;padding:0 14px;border:0;background:#5d6c8f;color:#fff;font-size:1.2rem;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.3);display:grid;place-items:center;transition:transform .3s var(--spring,ease),box-shadow .3s var(--ease,ease),opacity .3s,visibility 0s}
+.fsfab[hidden]{display:none}
+.fsfab .ic{font-size:1.3rem;transition:transform .35s var(--spring,ease)}
+.fsfab:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 14px 28px -8px rgba(0,0,0,.45),0 0 0 4px var(--tz-glow,rgba(106,63,209,.18))}
+.fsfab:hover .ic{transform:scale(1.15)}
+.fsfab:active{transform:scale(.92)}
+.fsfab .rip{background:#fff;opacity:.4}
+.fsfab.away{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s,visibility 0s .25s}
+/* right-hand stack: Timer stays put, Calendar sits above it, Fullscreen above Calendar */
+.fabr .calfab{position:absolute;right:0;bottom:calc(100% + 10px)}
+.calfab.away,.fsfab.away{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s,visibility 0s .25s}
+.tmp,.calp{bottom:calc(142px + env(safe-area-inset-bottom,0px));max-height:calc(100vh - 182px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px))}
+@media (max-width:640px){.tmp,.calp{bottom:calc(142px + env(safe-area-inset-bottom,0px))!important}}
 </style>
 </head>
 <body>
@@ -527,7 +544,7 @@ body.at-home .quicklinks{display:block;animation:hup .65s var(--ease) both}
 <li>Export a backup now and then.</li></ol>
 <p class="gdm">Be honest with the sliders. They are self-reported, so the tool is only as accurate as you are. Open the file in Chrome, Edge or Safari, not inside a chat app&rsquo;s preview.</p></details>
 </div>
-<div class="fabr"><button class="calfab" id="calfab" type="button" aria-controls="calp" aria-expanded="false" aria-label="Calendar and tasks"><i class="ic ic-cal"></i></button><button class="tmfab" id="tmfab" type="button" aria-controls="tmp" aria-expanded="false"></button></div>
+<div class="fabr"><button class="fsfab" id="fsfab" type="button" aria-label="Enter fullscreen" title="Fullscreen" hidden><i class="ic ic-fs"></i></button><button class="calfab" id="calfab" type="button" aria-controls="calp" aria-expanded="false" aria-label="Calendar and tasks"><i class="ic ic-cal"></i></button><button class="tmfab" id="tmfab" type="button" aria-controls="tmp" aria-expanded="false"></button></div>
 <div class="tmp" id="tmp" role="dialog" aria-label="Timer" hidden></div>
 <div class="calp" id="calp" role="dialog" aria-label="Calendar and tasks" hidden></div>
 <div class="mup" id="mup" role="dialog" aria-label="Focus sounds" hidden></div>
@@ -2078,5 +2095,36 @@ else paint();
 })();
 </script>
 
+<script>
+(function(){
+var b=document.getElementById("fsfab"),cf=document.getElementById("calfab");
+function open(id){var n=document.getElementById(id);return !!(n&&!n.hidden);}
+/* keep the stacked buttons clear of whichever panel is open */
+function away(){
+ var mob=window.matchMedia("(max-width:640px)").matches,right=open("tmp")||open("calp"),left=open("gdp")||open("mup");
+ if(b)b.classList.toggle("away",right||(mob&&left));
+ if(cf)cf.classList.toggle("away",mob&&left);
+}
+["tmp","calp","gdp","mup"].forEach(function(id){var n=document.getElementById(id);if(n)new MutationObserver(away).observe(n,{attributes:true,attributeFilter:["hidden"]});});
+window.addEventListener("resize",away);away();
+if(!b)return;
+var de=document.documentElement;
+var req=de.requestFullscreen||de.webkitRequestFullscreen||de.msRequestFullscreen;
+var ok=req&&(document.fullscreenEnabled!==false)&&(document.webkitFullscreenEnabled!==false);
+if(!ok)return; /* e.g. iPhone Safari has no fullscreen API: keep the button hidden */
+b.hidden=false;
+function el(){return document.fullscreenElement||document.webkitFullscreenElement||null;}
+function sync(){var on=!!el();b.setAttribute("aria-label",on?"Exit fullscreen":"Enter fullscreen");b.title=on?"Exit fullscreen":"Fullscreen";b.innerHTML='<i class="ic '+(on?"ic-fsx":"ic-fs")+'"></i>';}
+b.addEventListener("click",function(){
+ try{
+  if(el()){var x=document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen;var p=x.call(document);if(p&&p.catch)p.catch(function(){});}
+  else{var p2=req.call(de);if(p2&&p2.catch)p2.catch(function(){});}
+ }catch(e){}
+});
+document.addEventListener("fullscreenchange",sync);
+document.addEventListener("webkitfullscreenchange",sync);
+sync();
+})();
+</script>
 </body>
 </html>
