@@ -438,6 +438,8 @@ body.at-home .quicklinks{display:block;animation:hup .65s var(--ease) both}
 /* right-hand stack, top to bottom: fullscreen, calendar, timer */
 .fabr{flex-direction:column;align-items:flex-end}
 .tmp,.calp{bottom:calc(144px + env(safe-area-inset-bottom,0px));max-height:calc(100vh - 184px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px))}
+/* history time stats */
+.hstats{display:flex;flex-wrap:wrap;gap:6px 22px;margin:8px 0 6px}.hstats span{display:flex;flex-direction:column}.hstats small{color:var(--mute);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700}.hstats b{font-size:1rem;font-weight:700}
 </style>
 </head>
 <body>
@@ -549,7 +551,7 @@ body.at-home .quicklinks{display:block;animation:hup .65s var(--ease) both}
 <script>
 // Ratings are starting estimates (1-5): [name, importance, difficulty, volume]. Edit them on the page.
 var SUBJ=[{"id": "phy", "name": "Physics", "papers": [["Physics 1st paper", [["1. Physical world and measurement", 1, 2, 2], ["2. Vectors", 3, 3, 3], ["3. Dynamics (motion)", 5, 4, 4], ["4. Newtonian mechanics", 5, 4, 4], ["5. Work, energy and power", 4, 3, 3], ["6. Gravitation", 5, 4, 5], ["7. Structural properties of matter", 3, 3, 4], ["8. Periodic motion", 4, 4, 4], ["9. Waves", 4, 4, 4], ["10. Ideal gas and kinetic theory", 3, 3, 3]]], ["Physics 2nd paper", [["1. Thermodynamics", 4, 3, 3], ["2. Static electricity", 5, 4, 4], ["3. Current electricity", 5, 4, 4], ["4. Magnetic effects of current", 4, 4, 4], ["5. Induction and alternating current", 4, 4, 3], ["6. Geometrical optics", 4, 3, 4], ["7. Physical optics", 3, 3, 3], ["8. Introduction to modern physics", 3, 3, 3], ["9. Atomic models and nuclear physics", 4, 3, 4], ["10. Semiconductors and electronics", 4, 3, 3], ["11. Astronomy", 1, 1, 2]]]]}, {"id": "chem", "name": "Chemistry", "papers": [["Chem 1st paper", [["1. Safe use of the laboratory", 2, 1, 2], ["2. Qualitative chemistry", 5, 4, 5], ["3. Periodic properties and bonding", 4, 4, 4], ["4. Chemical changes", 5, 5, 5], ["5. Vocational chemistry", 3, 2, 3]]], ["Chem 2nd paper", [["1. Environmental chemistry", 3, 2, 3], ["2. Organic chemistry", 5, 4, 5], ["3. Quantitative chemistry", 5, 5, 5], ["4. Electrochemistry", 4, 4, 4], ["5. Economic chemistry", 2, 2, 2]]]]}, {"id": "math", "name": "Higher Math", "papers": [["Math 1st paper", [["1. Matrices and determinants", 4, 3, 4], ["2. Vectors", 4, 3, 4], ["3. Straight lines", 4, 3, 4], ["4. Circle", 4, 3, 3], ["5. Permutation and combination", 3, 3, 3], ["6. Trigonometric ratios", 3, 2, 3], ["7. Trig ratios of associated angles", 4, 4, 4], ["8. Functions and graphs", 4, 3, 3], ["9. Differentiation", 5, 4, 5], ["10. Integration", 5, 5, 5]]], ["Math 2nd paper", [["1. Real numbers and inequalities", 2, 2, 2], ["2. Linear programming", 2, 2, 2], ["3. Complex numbers", 4, 4, 4], ["4. Polynomials and equations", 4, 4, 4], ["5. Binomial expansion", 4, 3, 3], ["6. Conic sections", 5, 4, 5], ["7. Inverse trig functions and equations", 3, 4, 3], ["8. Statics", 4, 4, 4], ["9. Motion of a particle in a plane", 4, 4, 5], ["10. Dispersion and probability", 4, 3, 3]]]]}, {"id": "bio", "name": "Biology", "papers": [["Bio 1st paper (Botany)", [["1. Cell and its structure", 4, 3, 3], ["2. Cell division", 4, 3, 3], ["3. Cell chemistry", 4, 4, 4], ["4. Microorganisms", 3, 2, 3], ["5. Algae and fungi", 3, 3, 3], ["6. Bryophyta and pteridophyta", 3, 3, 3], ["7. Gymnosperms and angiosperms", 3, 3, 4], ["8. Tissue and tissue system", 4, 3, 4], ["9. Plant physiology", 5, 4, 5], ["10. Plant reproduction", 4, 3, 3], ["11. Biotechnology", 3, 3, 3]]], ["Bio 2nd paper (Zoology)", [["1. Animal diversity and classification", 4, 3, 4], ["2. Animal identity", 3, 2, 3], ["3. Digestion and absorption", 4, 3, 4], ["4. Blood and circulation", 5, 3, 4], ["5. Gas exchange", 4, 3, 3], ["6. Excretion and osmoregulation", 4, 3, 3], ["7. Locomotion and movement", 3, 3, 4], ["8. Coordination and control", 5, 4, 5], ["9. Continuity of human life", 4, 3, 4], ["10. Immunity and defence", 3, 3, 3], ["11. Genetics and evolution", 5, 5, 4]]]]}];
-var W={i:40,v:35,d:25}, S={}, TAB="all", L=[], F=[], M=null, P=[], MSG="", MD={n:"",p:"",err:""}, RANGE=14, REWARD=null, DRAFT={step:1,h:"",n:"",rating:"",d:"",err:""};
+var W={i:40,v:35,d:25}, S={}, TAB="all", L=[], F=[], M=null, P=[], MSG="", MD={n:"",p:"",err:""}, RANGE=14, REWARD=null, DRAFT={step:1,h:"",n:"",rating:"",d:"",bm:"",err:""};
 try{var s=JSON.parse(localStorage.getItem("hscpcmb")||"null");if(s){S=s.S||{};TAB=s.T||"all";L=s.L||[];M=s.M||null;P=s.P||[];F=s.F||[];}}catch(e){}
 function save(){try{localStorage.setItem("hscpcmb",JSON.stringify({S:S,T:TAB,L:L,M:M,P:P,F:F}))}catch(e){}}
 function sj(id){return SUBJ.filter(function(x){return x.id===id})[0];}
@@ -658,7 +660,7 @@ function logHtml(){
   var prev=L.length>0,has=c.rows.length;
   h+='<section class="paper logform"><h2>Log a study session</h2><p class="note">Log hours by hand here, or use the timer at the bottom right and it adds your session for you. Every session you log on the same day is added to that day, never replaced.</p>';
   if(DRAFT.step===1){
-    h+='<label class="f" for="lh">How many hours did you study?</label><input type="number" id="lh" min="0" max="24" step="0.25" value="'+esc(DRAFT.h)+'" placeholder="e.g. 3.5"><label class="f" for="ld">Date</label><input type="date" id="ld" value="'+(DRAFT.d||today())+'" max="'+today()+'">'
+    h+='<label class="f" for="lh">How many hours did you study?</label><input type="number" id="lh" min="0" max="24" step="0.25" value="'+esc(DRAFT.h)+'" placeholder="e.g. 3.5"><label class="f" for="ld">Date</label><input type="date" id="ld" value="'+(DRAFT.d||today())+'" max="'+today()+'"><label class="f" for="lbm">Was it followed by a break? Break length in minutes (leave empty if none)</label><input type="number" id="lbm" min="0" max="600" step="1" value="'+esc(DRAFT.bm||"")+'" placeholder="e.g. 10">'
     +(DRAFT.err?'<p class="err">'+esc(DRAFT.err)+'</p>':'')+'<button class="primary" data-act="next">Next</button>';
   }else{
     h+='<p class="note">'+esc(DRAFT.h)+' hours on '+(DRAFT.d||today())+(function(){var q=L.filter(function(e){return e.d===(DRAFT.d||today())})[0];return q?". These will be added to the "+q.h+" h already logged that day.":"";})()+'</p><label class="f" for="ln">What did you study?</label><textarea id="ln" rows="4" placeholder="Chapters, topics, problems solved...">'+esc(DRAFT.n)+'</textarea>';
@@ -666,7 +668,7 @@ function logHtml(){
     h+=(DRAFT.err?'<p class="err">'+esc(DRAFT.err)+'</p>':'')+'<button data-act="back">Back</button> <button class="primary" data-act="save">Collect Stardust</button>';
   }
   h+='</section>'+chartHtml()+productivityChartsHtml();
-  h+='<section class="paper"><h2>History</h2>'+(has?c.rows.slice().reverse().map(function(q){return '<div class="hist"><strong>'+q.e.d+'</strong>, '+q.e.h+' h'+(q.e.s&&q.e.s.length>1?' total':'')+' <span class="sd">+'+fmt(q.sd)+' Stardust</span>'+""+(q.e.s&&q.e.s.length>1?'<ol class="sess">'+q.e.s.map(function(x,i){return '<li><span class="st">Session '+(i+1)+(x.t?' at '+esc(x.t):'')+', '+x.h+' h</span> '+esc(x.n)+(x.rating?' <span class="ratepill">Rating '+x.rating+'/5</span>':'')+' <button data-act="sdel" data-id="'+q.e.d+'" data-i="'+i+'">Remove</button></li>'}).join("")+'</ol>':'<p>'+esc(q.e.n)+(q.e.s&&q.e.s[0]&&q.e.s[0].rating?' <span class="ratepill">Rating '+q.e.s[0].rating+'/5</span>':'')+'</p>')+'<button data-act="del" data-id="'+q.e.d+'">'+(q.e.s&&q.e.s.length>1?'Delete whole day':'Delete')+'</button></div>'}).join(""):'<p class="note">No sessions yet. Log a session to begin earning Stardust.</p>')+'</section>';
+  h+='<section class="paper"><h2>History</h2>'+(has?c.rows.slice().reverse().map(function(q){return '<div class="hist"><strong>'+q.e.d+'</strong> <span class="sd">+'+fmt(q.sd)+' Stardust</span>'+(function(){var t=dayTimes(q.e);return '<div class="hstats"><span><small>Total logged time</small><b>'+hm(t.lg)+'</b></span><span><small>Total study time</small><b>'+hm(t.st)+'</b></span><span><small>Total break time</small><b>'+hm(t.br)+'</b></span></div>';})()+""+(q.e.s&&q.e.s.length>1?'<ol class="sess">'+q.e.s.map(function(x,i){return '<li><span class="st">Session '+(i+1)+(x.t?' at '+esc(x.t):'')+', '+hm(x.h*60)+(x.bm>0?' + '+hm(x.bm)+' break':'')+'</span> '+esc(x.n)+(x.rating?' <span class="ratepill">Rating '+x.rating+'/5</span>':'')+' <button data-act="sdel" data-id="'+q.e.d+'" data-i="'+i+'">Remove</button></li>'}).join("")+'</ol>':'<p>'+esc(q.e.n)+(q.e.s&&q.e.s[0]&&q.e.s[0].rating?' <span class="ratepill">Rating '+q.e.s[0].rating+'/5</span>':'')+'</p>')+'<button data-act="del" data-id="'+q.e.d+'">'+(q.e.s&&q.e.s.length>1?'Delete whole day':'Delete')+'</button></div>'}).join(""):'<p class="note">No sessions yet. Log a session to begin earning Stardust.</p>')+'</section>';
   return h;
 }
 function animateReward(){
@@ -736,17 +738,17 @@ function act(a){
   if(k==="next"){
     var hv=parseFloat(DRAFT.h);
     if(!(hv>0&&hv<=24))DRAFT.err="Enter hours between 0 and 24.";
-    else{DRAFT.err="";DRAFT.step=2;}
+    else if(String(DRAFT.bm||"").trim()!==""&&!(parseFloat(DRAFT.bm)>=0&&parseFloat(DRAFT.bm)<=600))DRAFT.err="Break minutes must be between 0 and 600.";else{DRAFT.err="";DRAFT.step=2;}
   }else if(k==="back"){DRAFT.step=1;DRAFT.err="";}
   else if(k==="save"){
     if(!DRAFT.n.trim())DRAFT.err="Write what you studied.";
     else if(!DRAFT.rating)DRAFT.err="Rate this study session.";
     else{
-      var ex=L.filter(function(e){return e.d===dd})[0],before=0,add=parseFloat(DRAFT.h);
-      if(ex){var o=calc().rows.filter(function(q){return q.e.d===dd})[0];before=o?o.sd:0;addSess(ex,add,DRAFT.n.trim(),DRAFT.rating);}
-      else L.push(newDay(dd,add,DRAFT.n.trim(),DRAFT.rating));
+      var ex=L.filter(function(e){return e.d===dd})[0],before=0,add=parseFloat(DRAFT.h),bmv=Math.round(parseFloat(DRAFT.bm)||0);
+      if(ex){var o=calc().rows.filter(function(q){return q.e.d===dd})[0];before=o?o.sd:0;addSess(ex,add,DRAFT.n.trim(),DRAFT.rating,bmv);}
+      else L.push(newDay(dd,add,DRAFT.n.trim(),DRAFT.rating,bmv));
       var row=calc().rows.filter(function(q){return q.e.d===dd})[0];
-      REWARD={row:Object.assign({},row,{sd:row.sd-before}),shown:false};DRAFT={step:1,h:"",n:"",rating:"",d:"",err:""};save();tabs();
+      REWARD={row:Object.assign({},row,{sd:row.sd-before}),shown:false};DRAFT={step:1,h:"",n:"",rating:"",d:"",bm:"",err:""};save();tabs();
     }
   }else if(k==="closer")REWARD=null;
   else if(k==="del"){L=L.filter(function(e){return e.d!==a.dataset.id});save();tabs();}
@@ -764,12 +766,14 @@ function goods(){if(!M)M=GOODS0.map(function(g,i){return {id:"d"+i,n:g[0],p:g[1]
 function nowT(){try{return new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});}catch(e){return "";}}
 function sessSum(e){return Math.round(e.s.reduce(function(a,x){return a+x.h},0)*100)/100;}
 function sessJoin(e){return e.s.map(function(x){return x.n}).join("; ");}
-function addSess(e,h,n,rating){
+function addSess(e,h,n,rating,bm){
   if(!e.s)e.s=[{h:e.h,n:e.n,t:"",rating:null}];
-  e.s.push({h:h,n:n,t:nowT(),rating:+rating});
+  e.s.push({h:h,n:n,t:nowT(),rating:+rating,bm:bm>0?bm:0});
   e.h=Math.min(24,sessSum(e));e.n=sessJoin(e);
 }
-function newDay(d,h,n,rating){return {d:d,h:Math.min(24,h),n:n,s:[{h:h,n:n,t:nowT(),rating:+rating}]};}
+function newDay(d,h,n,rating,bm){return {d:d,h:Math.min(24,h),n:n,s:[{h:h,n:n,t:nowT(),rating:+rating,bm:bm>0?bm:0}]};}
+function hm(m){m=Math.round(m);if(!(m>0))return "0 min";var h=Math.floor(m/60),r=m%60;return h?h+" h"+(r?" "+r+" min":""):r+" min";}
+function dayTimes(e){var ss=e.s&&e.s.length?e.s:[{h:e.h,bm:0}],st=0,br=0;ss.forEach(function(x){st+=(+x.h||0)*60;br+=(+x.bm||0);});st=Math.round(st);return {st:st,br:br,lg:st+br};}
 function ratingOptions(selected){var a=[[1,"Distracted"],[2,"Multitasked"],[3,"Cumbersome"],[4,"Average workflow"],[5,"Productive"]];return '<div class="opts ratingopts" role="radiogroup" aria-label="How was this study session?">'+a.map(function(o){return '<label><input type="radio" name="sessionrating" value="'+o[0]+'"'+(+selected===o[0]?" checked":"")+'><span class="rt"><b>'+o[0]+'</b><em>'+o[1]+'</em></span></label>'}).join("")+'</div>';}
 function spent(){return P.reduce(function(a,x){return a+x.p},0);}
 function marketHtml(){
@@ -962,7 +966,7 @@ document.getElementById("view").addEventListener("input",function(e){
 if(TAB!=="all"&&TAB!=="syl"&&TAB!=="todo"&&TAB!=="log"&&TAB!=="market"&&TAB!=="backup"&&TAB!=="files"&&!sj(TAB))TAB="all";
 document.getElementById("view").addEventListener("input",function(e){
   var t=e.target;
-  if(t.id==="lh")DRAFT.h=t.value;else if(t.id==="ld")DRAFT.d=t.value;else if(t.id==="ln")DRAFT.n=t.value;else if(t.name==="sessionrating")DRAFT.rating=t.value;else if(t.id==="bkpaste")BKPASTE=t.value;else if(t.id==="fn")FN=t.value;else if(t.id==="et")ET=t.value;else if(t.id==="es")ES=t.value;else if(t.id==="ed")ED=t.value;else if(t.id==="mn")MD.n=t.value;else if(t.id==="mp")MD.p=t.value;
+  if(t.id==="lh")DRAFT.h=t.value;else if(t.id==="lbm")DRAFT.bm=t.value;else if(t.id==="ld")DRAFT.d=t.value;else if(t.id==="ln")DRAFT.n=t.value;else if(t.name==="sessionrating")DRAFT.rating=t.value;else if(t.id==="bkpaste")BKPASTE=t.value;else if(t.id==="fn")FN=t.value;else if(t.id==="et")ET=t.value;else if(t.id==="es")ES=t.value;else if(t.id==="ed")ED=t.value;else if(t.id==="mn")MD.n=t.value;else if(t.id==="mp")MD.p=t.value;
 });
 document.getElementById("view").addEventListener("change",function(e){
   var t=e.target;if(t.id!=="bkfile"||!t.files||!t.files[0])return;
@@ -1090,9 +1094,10 @@ function tmAct(b){
   if(k==="pause"&&TM&&TM.t0){TM.acc=tmEl();TM.t0=null;tmSave();tmRender();return;}
   if(k==="resume"&&TM&&!TM.over){TM.fin=0;TM.t0=Date.now();tmSave();tmRender();return;}
   if(k==="stop"&&TM){TM.acc=Math.min(tmEl(),TM.dir==="down"?TM.dur*1000:Infinity);TM.t0=null;TM.fin=1;TU.dis=false;tmSave();tmRender();return;}
-  if(k==="close"){if(TQ){TM=TQ;TQ=null;TU.dis=false;tmSave();tmRender();return;}TM=null;TU.k="";TU.dis=false;tmSave();tmRender();return;}
+  if(k==="close"){if(TM&&TM.k==="break"&&TM.bk&&window.tmBrkDone(true))return;if(TQ){if(TM&&TM.k==="break"){TQ.bms=(TQ.bms||0)+Math.min(tmEl(),TM.dur*1000);}TM=TQ;TQ=null;TU.dis=false;tmSave();tmRender();return;}TM=null;TU.k="";TU.dis=false;tmSave();tmRender();return;}
   if(k==="discard"){
     if(!TU.dis){TU.dis=true;tmRender();return;}
+    if(TM&&TM.k==="break"&&TM.bk&&window.tmBrkDone(false))return;
     if(TQ&&TM&&TM.k==="break"){TM=TQ;TQ=null;TU.dis=false;tmSave();tmRender();return;}
     if(TM&&TM.k==="study"&&window.tmCycBreak&&window.tmCycBreak()){TU.dis=false;TU.note="";TU.rating="";TU.err="";TU.open=false;tmRender();return;}
     if(TM&&TM.k==="spend"&&!TM.over&&P[TM.pi]&&P[TM.pi].n===TM.lbl){P[TM.pi].u=0;save();if(TAB==="market")view();}
@@ -1103,12 +1108,12 @@ function tmAct(b){
     if(ms<60000){TU.err="Under a minute, so there is nothing to log. Resume or discard.";tmRender();return;}
     if(!note){TU.err="Write what you studied.";tmRender();return;}
     if(!TU.rating){TU.err="Rate this study session.";tmRender();return;}
-    var d=TM.d,before=0;
-    if(ex){var o=calc().rows.filter(function(q){return q.e.d===d})[0];before=o?o.sd:0;addSess(ex,hrs,note,TU.rating);}
-    else L.push(newDay(d,hrs,note,TU.rating));
+    var d=TM.d,before=0,bm=Math.round((TM.bms||0)/60000);
+    if(ex){var o=calc().rows.filter(function(q){return q.e.d===d})[0];before=o?o.sd:0;addSess(ex,hrs,note,TU.rating,bm);}
+    else L.push(newDay(d,hrs,note,TU.rating,bm));
     var row=calc().rows.filter(function(q){return q.e.d===d})[0];
     REWARD={row:Object.assign({},row,{sd:row.sd-before}),shown:false};
-    var goOn=window.tmCycBreak&&window.tmCycBreak();if(!goOn)TM=null;TU={open:false,k:"",dir:"up",mins:"",pi:-1,note:"",rating:"",err:"",dis:false};
+    var goOn=window.tmCycBreak&&window.tmCycBreak();if(goOn){var ent=L.filter(function(e){return e.d===d})[0];TM.bk={d:d,i:ent&&ent.s?ent.s.length-1:0};}else TM=null;TU={open:false,k:"",dir:"up",mins:"",pi:-1,note:"",rating:"",err:"",dis:false};
     tmSave();save();TAB="log";tabs();view();tmRender();
     window.scrollTo(0,0);return;
   }
@@ -1834,7 +1839,15 @@ window.tmCycBreak=function(){
  TM={k:"break",dir:"down",dur:b*60,acc:0,t0:Date.now(),lbl:"",d:today(),fin:0,over:0,cyc:TQ.cyc,cur:TQ.cur};
  tmSave();return true;
 };
+window.tmBrkDone=function(rec){
+ if(!(TM&&TM.k==="break"&&TM.bk))return false;
+ if(rec){var m=Math.round(Math.min(tmEl(),TM.dur*1000)/60000),e=L.filter(function(x){return x.d===TM.bk.d})[0],ss=e&&e.s&&e.s[TM.bk.i];if(ss&&m>0){ss.bm=(ss.bm||0)+m;save();}}
+ if(TQ&&TQ.pre==="custom"&&TQ.cyc>TQ.cur){TM={k:"study",dir:"down",dur:TQ.dur,acc:0,t0:Date.now(),lbl:"",d:today(),fin:0,over:0,pre:"custom",cb:TQ.cb,clb:TQ.clb,cn:TQ.cn,cyc:TQ.cyc,cur:TQ.cur+1,carry:0};TQ=null;TU.open=true;}
+ else{TM=null;TQ=null;TU.k="";}
+ TU.dis=false;tmSave();tmRender();if(TAB==="log")view();return true;
+};
 window.tmAutoBrk=function(){
+ if(TM&&TM.k==="break"&&TM.over&&TM.bk){window.tmBrkDone(true);return;}
  /* custom cycles: when a break ends, start the next study cycle by itself */
  if(TM&&TM.k==="break"&&TM.over&&TQ&&TQ.pre==="custom"&&TQ.cyc>TQ.cur){
   TM={k:"study",dir:"down",dur:TQ.dur,acc:0,t0:Date.now(),lbl:"",d:today(),fin:0,over:0,pre:"custom",cb:TQ.cb,clb:TQ.clb,cn:TQ.cn,cyc:TQ.cyc,cur:TQ.cur+1,carry:0};
