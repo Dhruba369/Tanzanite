@@ -623,19 +623,26 @@ function chartHtml(){
   +'<div class="stats"><div><b>'+(Math.round(allH*10)/10)+'</b><span>hours logged, all time</span></div><div><b>'+(Math.round(avg*10)/10)+'</b><span>average hours a day, last '+N+' days</span></div><div><b>'+(Math.round(best*10)/10)+'</b><span>best day'+(bestD?" ("+bestD+")":"")+'</span></div><div><b>'+streak+'</b><span>day streak</span></div></div>'
   +'<div class="chart"><svg viewBox="0 0 '+VW+' '+VH+'" role="img" aria-label="Bar chart of hours studied per day">'+g+'</svg></div></section>';
 }
+var PROD_DAY="";
+function prodDays(){var o={};o[today()]=1;L.forEach(function(e){(e.s||[]).forEach(function(x){if(+x.rating>=1&&+x.rating<=5)o[e.d]=1;});});return Object.keys(o).sort();}
+function ddmm(d){return d.slice(8,10)+"-"+d.slice(5,7);}
 function productivityChartsHtml(){
   var sessions=[];L.slice().sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0}).forEach(function(e){
-    (e.s||[{h:e.h,n:e.n,t:"",rating:null}]).forEach(function(x,i){if(+x.rating>=1&&+x.rating<=5)sessions.push({d:e.d,r:+x.rating,i:i+1});});
+    (e.s||[{h:e.h,n:e.n,t:"",rating:null}]).forEach(function(x,i){if(+x.rating>=1&&+x.rating<=5)sessions.push({d:e.d,r:+x.rating,i:i+1,t:x.t||""});});
   });
-  var recent=sessions.slice(-60),W=640,H=210,l=38,r=10,t=14,b=30,pw=W-l-r,ph=H-t-b,g="";
+  var pdays=prodDays(),curDay=PROD_DAY||today(),pix=pdays.indexOf(curDay),recent=sessions.filter(function(x){return x.d===curDay}),W=640,H=210,l=38,r=10,t=14,b=30,pw=W-l-r,ph=H-t-b,g="";
   for(var v=1;v<=5;v++){var y=t+ph-(v-1)*ph/4;g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/><text x="'+(l-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="10" fill="var(--mute)">'+v+'</text>';}
-  recent.forEach(function(x,i){var xx=l+(recent.length<=1?pw/2:i*pw/(recent.length-1)),yy=t+ph-(x.r-1)*ph/4;g+='<circle cx="'+xx+'" cy="'+yy+'" r="4" fill="var(--acc2)"><title>'+x.d+' · session '+x.i+' · '+x.r+'/5</title></circle>';if(i===0||i===recent.length-1||i%Math.max(1,Math.floor(recent.length/7))===0)g+='<text x="'+xx+'" y="'+(H-8)+'" text-anchor="middle" font-size="9" fill="var(--mute)">'+x.d.slice(5)+'</text>';});
+  var pts=recent.map(function(x,i){return {x:l+(recent.length<=1?pw/2:i*pw/(recent.length-1)),y:t+ph-(x.r-1)*ph/4};});
+  if(pts.length>1)g+='<polyline points="'+pts.map(function(p){return p.x+','+p.y}).join(' ')+'" fill="none" stroke="var(--acc2)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  recent.forEach(function(x,i){var xx=pts[i].x,yy=pts[i].y;g+='<circle cx="'+xx+'" cy="'+yy+'" r="4.5" fill="var(--acc2)"><title>'+ddmm(x.d)+' · session '+x.i+(x.t?' · '+x.t:'')+' · '+x.r+'/5</title></circle>';if(i===0||i===recent.length-1||i%Math.max(1,Math.ceil(recent.length/10))===0)g+='<text x="'+xx+'" y="'+(H-8)+'" text-anchor="middle" font-size="9" fill="var(--mute)">S'+x.i+'</text>';});
+  if(!recent.length)g+='<text x="'+(W/2)+'" y="'+(t+ph/2)+'" text-anchor="middle" font-size="12" fill="var(--mute)">No rated sessions on this day yet</text>';
+  var pavg=recent.length?recent.reduce(function(a,x){return a+x.r},0)/recent.length:0;
   var daily={};sessions.forEach(function(x){(daily[x.d]||(daily[x.d]=[])).push(x.r);});
   var N=PROD_RANGE,days=[],now=new Date();now.setHours(12,0,0,0);for(var j=N-1;j>=0;j--){var dt=new Date(now);dt.setDate(now.getDate()-j);var key=ymd(dt),a=daily[key]||[];days.push({d:key,avg:a.length?a.reduce(function(s,v){return s+v},0)/a.length:null,n:a.length});}
   var g2="";for(var v2=1;v2<=5;v2++){var yy2=t+ph-(v2-1)*ph/4;g2+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+yy2+'" y2="'+yy2+'" stroke="var(--line)"/><text x="'+(l-8)+'" y="'+(yy2+4)+'" text-anchor="end" font-size="10" fill="var(--mute)">'+v2+'</text>';}
   var bw=pw/N;days.forEach(function(x,i){if(x.avg===null)return;var bh=(x.avg-1)*ph/4,bx=l+i*bw+bw*.15,ww=bw*.7;g2+='<rect x="'+bx+'" y="'+(t+ph-bh-2)+'" width="'+ww+'" height="'+Math.max(3,bh+2)+'" rx="2" fill="var(--acc)"><title>'+x.d+' · average '+x.avg.toFixed(2)+'/5 from '+x.n+' session'+(x.n===1?'':'s')+'</title></rect>';if(i%Math.max(1,Math.ceil(N/7))===0)g2+='<text x="'+(bx+ww/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="9" fill="var(--mute)">'+x.d.slice(5)+'</text>';});
   var count=days.reduce(function(a,x){return a+x.n},0),vals=days.filter(function(x){return x.avg!==null}),avg=vals.length?vals.reduce(function(a,x){return a+x.avg},0)/vals.length:0;
-  return '<section class="paper"><h2>Session productivity</h2><p class="note">Every self-rated study session, shown individually. Showing the latest '+recent.length+' rated sessions.</p><div class="chart"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Individual session productivity ratings from 1 to 5">'+g+'</svg></div></section>'+
+  return '<section class="paper"><h2>Session productivity</h2><div class="range" style="align-items:center"><button data-act="pday" data-v="prev"'+(pix<=0?' disabled':'')+' aria-label="Previous day">&larr;</button><b style="min-width:110px;text-align:center">'+(curDay===today()?'Today · ':'')+ddmm(curDay)+'</b><button data-act="pday" data-v="next"'+(pix>=pdays.length-1?' disabled':'')+' aria-label="Next day">&rarr;</button>'+(curDay!==today()?'<button data-act="pday" data-v="today">Today</button>':'')+'</div><p class="note">'+(recent.length?recent.length+' rated session'+(recent.length===1?'':'s')+' · average '+pavg.toFixed(2)+'/5. ':'')+'Each day starts a fresh graph; use the arrows to see earlier days.</p><div class="chart"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Individual session productivity ratings from 1 to 5">'+g+'</svg></div></section>'+
   '<section class="paper"><h2>Daily average productivity</h2><div class="range">'+[7,30,90].map(function(n){return '<button data-act="prange" data-v="'+n+'" aria-pressed="'+(PROD_RANGE===n)+'">'+(n===7?'Week':n===30?'Month':'90 days')+'</button>';}).join('')+'</div><div class="stats"><div><b>'+(avg?avg.toFixed(2):'—')+'</b><span>average rating / 5</span></div><div><b>'+count+'</b><span>rated sessions</span></div></div><div class="chart"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Daily average productivity ratings over '+N+' days">'+g2+'</svg></div><p class="note">Each bar is the average of all rated sessions logged on that date. Days without a rating are left blank.</p></section>';
 }
 function logHtml(){
@@ -746,7 +753,7 @@ function act(a){
     if(de&&de.s){de.s.splice(+a.dataset.i,1);if(!de.s.length)L=L.filter(function(e){return e!==de});else{de.h=Math.min(24,sessSum(de));de.n=sessJoin(de);}save();tabs();}
   }
   else if(k==="range")RANGE=+a.dataset.v;
-  else if(k==="prange")PROD_RANGE=+a.dataset.v;
+  else if(k==="prange")PROD_RANGE=+a.dataset.v;else if(k==="pday"){var pd=prodDays(),pc=PROD_DAY||today(),pi=pd.indexOf(pc),pv=a.dataset.v,nd=pc;if(pv==="prev"&&pi>0)nd=pd[pi-1];else if(pv==="next"&&pi<pd.length-1)nd=pd[pi+1];else if(pv==="today")nd=today();PROD_DAY=nd===today()?"":nd;}
   view();
 }
 
@@ -965,7 +972,7 @@ var TMK="hscpcmb_timer",TM=null,TBASE=document.title,TAC=null,TQ=null;
 var TU={open:false,k:"",dir:"up",mins:"",pi:-1,note:"",rating:"",err:"",dis:false};
 var TCU={b:5,lb:15,n:4,c:4};try{var tcj=JSON.parse(localStorage.getItem("tzcustom")||"null");if(tcj&&tcj.b>0)TCU={b:tcj.b,lb:tcj.lb>0?tcj.lb:15,n:tcj.n>0?tcj.n:4,c:tcj.c>0?tcj.c:4};}catch(e){}
 function tcuSave(){try{localStorage.setItem("tzcustom",JSON.stringify(TCU));}catch(e){}}
-function tmCustNote(){var m=parseFloat(TU.mins);return "Study "+(m>0?m:"?")+" min, then a "+TCU.b+" min break, repeated for "+TCU.c+" cycle"+(TCU.c===1?"":"s")+". Each cycle starts by itself. Every "+TCU.n+(TCU.n===1?"st":"th")+" cycle the break is "+TCU.lb+" min. No break after the last cycle.";}
+function tmCustNote(){var m=parseFloat(TU.mins);return "Study "+(m>0?m:"?")+" min, then a "+TCU.b+" min break, repeated for "+TCU.c+" cycle"+(TCU.c===1?"":"s")+". After each study cycle you log what you studied and rate it, then the break and the next cycle start by themselves. Every "+TCU.n+(TCU.n===1?"st":"th")+" cycle the break is "+TCU.lb+" min. No break after the last cycle.";}
 var KN={study:"Study","break":"Break",spend:"Spendature"},KI={study:'<i class="ic ic-book"></i>',"break":'<i class="ic ic-cup"></i>',spend:'<i class="ic ic-bag"></i>'};
 var KP={study:["Contemplating","Climbing a hill","Reaching for the crown","Sharpening the mind","Walking the long road","Forging ahead"],"break":["Catching your breath","Resting at camp","Gathering strength","Watching the horizon"],spend:["Savoring the reward","Enjoying the spoils","Basking in glory"]};
 var KT=["Breathe deep: in for 4, hold for 4, out for 6.","Refill your water bottle and take a few sips.","Stand up and stretch your arms overhead.","Roll your shoulders and loosen your neck.","Look out a window and rest your eyes on something far away.","Walk around for a minute and shake out your legs.","Unclench your jaw and relax your hands.","Grab a small, healthy snack if you are hungry.","Close your eyes for a moment and let your mind go quiet.","Check your posture: feet flat, back tall, shoulders down."];
@@ -1026,10 +1033,10 @@ function tmPanelHtml(){
     return h;
   }
   var ex=tmTodayEntry(),hrs=Math.round(ms/36000)/100;
-  h=tmHead(KI.study+" Study finished")+'<p class="note">'+(TM.over?"Time is up. ":"")+'You studied <b>'+dur+'</b> ('+hrs+' h). '+(ex?"This date already has an entry, so the time is added to it.":"")+'</p>';
+  h=tmHead(KI.study+" Study finished")+'<p class="note">'+(TM.over?"Time is up. ":"")+(TM.pre==="custom"&&TM.cyc>1?"Cycle "+TM.cur+" of "+TM.cyc+". ":"")+'You studied <b>'+dur+'</b> ('+hrs+' h). '+(ex?"This date already has an entry, so the time is added to it.":"")+'</p>';
   h+='<label class="f" for="tmnote">What did you study?</label><textarea id="tmnote" rows="3" placeholder="Chapters, topics, problems solved...">'+esc(TU.note)+'</textarea>';
   h+='<label class="f">How was this study session?</label>'+ratingOptions(TU.rating);
-  h+=(TU.err?'<p class="err">'+esc(TU.err)+'</p>':'')+'<div class="tmrow"><button class="primary" data-tm="savelog">Save to study log</button>'+(TM.over?'':'<button data-tm="resume">Resume</button>')+'<button data-tm="discard">'+(TU.dis?"Press again to confirm":"Discard")+'</button></div>';
+  h+=(TU.err?'<p class="err">'+esc(TU.err)+'</p>':'')+'<div class="tmrow"><button class="primary" data-tm="savelog">'+(TM.over&&TM.pre==="custom"&&TM.cur<TM.cyc?"Save and start break":"Save to study log")+'</button>'+(TM.over?'':'<button data-tm="resume">Resume</button>')+'<button data-tm="discard">'+(TU.dis?"Press again to confirm":"Discard")+'</button></div>';
   return h;
 }
 function tmRender(){
@@ -1085,6 +1092,7 @@ function tmAct(b){
   if(k==="discard"){
     if(!TU.dis){TU.dis=true;tmRender();return;}
     if(TQ&&TM&&TM.k==="break"){TM=TQ;TQ=null;TU.dis=false;tmSave();tmRender();return;}
+    if(TM&&TM.k==="study"&&window.tmCycBreak&&window.tmCycBreak()){TU.dis=false;TU.note="";TU.rating="";TU.err="";TU.open=false;tmRender();return;}
     if(TM&&TM.k==="spend"&&!TM.over&&P[TM.pi]&&P[TM.pi].n===TM.lbl){P[TM.pi].u=0;save();if(TAB==="market")view();}
     TM=null;TU.k="";TU.dis=false;TU.note="";TU.rating="";TU.err="";tmSave();tmRender();return;
   }
@@ -1098,7 +1106,7 @@ function tmAct(b){
     else L.push(newDay(d,hrs,note,TU.rating));
     var row=calc().rows.filter(function(q){return q.e.d===d})[0];
     REWARD={row:Object.assign({},row,{sd:row.sd-before}),shown:false};
-    TM=null;TU={open:false,k:"",dir:"up",mins:"",pi:-1,note:"",rating:"",err:"",dis:false};
+    var goOn=window.tmCycBreak&&window.tmCycBreak();if(!goOn)TM=null;TU={open:false,k:"",dir:"up",mins:"",pi:-1,note:"",rating:"",err:"",dis:false};
     tmSave();save();TAB="log";tabs();view();tmRender();
     window.scrollTo(0,0);return;
   }
@@ -1817,16 +1825,23 @@ try{var q=JSON.parse(localStorage.getItem(TMK+"q")||"null");if(q&&typeof q==="ob
 window.tmUnlock=function(){try{if(!TVA)TVA=new Audio();TVA.muted=true;TVA.src=TV.study[0];var p=TVA.play();if(p&&p.then)p.then(function(){TVA.pause();TVA.currentTime=0;}).catch(function(){});}catch(e){}};
 window.tmVoice=function(kind){try{var a=TV[kind];if(!a||!a.length)return;var i;do{i=Math.floor(Math.random()*a.length);}while(a.length>1&&i===TLAST[kind]);TLAST[kind]=i;if(!TVA)TVA=new Audio();TVA.pause();TVA.muted=false;TVA.volume=0.5;TVA.src=a[i];TVA.currentTime=0;var p=TVA.play();if(p&&p.catch)p.catch(function(){});}catch(e){}};
 window.tmBeep=function(){try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}tmVoice(TM&&TM.k==="study"?"study":"brk");};
+window.tmCycBreak=function(){
+ if(!TM||TM.k!=="study"||!TM.over||TM.pre!=="custom"||!(TM.cur<TM.cyc))return false;
+ var b=TM.cb>0?TM.cb:5;if(TM.cn>0&&TM.cur%TM.cn===0&&TM.clb>0)b=TM.clb;
+ TQ=Object.assign({},TM);TQ.carry=0;
+ TM={k:"break",dir:"down",dur:b*60,acc:0,t0:Date.now(),lbl:"",d:today(),fin:0,over:0,cyc:TQ.cyc,cur:TQ.cur};
+ tmSave();return true;
+};
 window.tmAutoBrk=function(){
  /* custom cycles: when a break ends, start the next study cycle by itself */
  if(TM&&TM.k==="break"&&TM.over&&TQ&&TQ.pre==="custom"&&TQ.cyc>TQ.cur){
-  TM={k:"study",dir:"down",dur:TQ.dur,acc:0,t0:Date.now(),lbl:"",d:today(),fin:0,over:0,pre:"custom",cb:TQ.cb,clb:TQ.clb,cn:TQ.cn,cyc:TQ.cyc,cur:TQ.cur+1,carry:(TQ.carry||0)+TQ.dur*1000};
+  TM={k:"study",dir:"down",dur:TQ.dur,acc:0,t0:Date.now(),lbl:"",d:today(),fin:0,over:0,pre:"custom",cb:TQ.cb,clb:TQ.clb,cn:TQ.cn,cyc:TQ.cyc,cur:TQ.cur+1,carry:0};
   TQ=null;TU.open=true;tmSave();return;
  }
  if(!TM||TM.k!=="study"||!TM.over||!TM.pre)return;
  var b;
  if(TM.pre==="custom"){
-  if(TM.cur>=TM.cyc)return; /* last cycle done: no break, log the session */
+  return; /* custom: the log form shows first; tmCycBreak starts the break after you save */
   b=TM.cb>0?TM.cb:5;
   if(TM.cn>0&&TM.cur%TM.cn===0&&TM.clb>0)b=TM.clb;
  }else{
