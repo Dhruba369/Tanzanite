@@ -427,7 +427,7 @@ body.at-home .quicklinks{display:block;animation:hup .65s var(--ease) both}
 /* fullscreen floating button */
 .ic-fs{--m:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5%22/%3E%3C/svg%3E")}
 .ic-fsx{--m:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M9 4v5H4 M15 4v5h5 M9 20v-5H4 M15 20v-5h5%22/%3E%3C/svg%3E")}
-.fsfab{position:absolute;right:0;bottom:calc(100% + 72px);min-width:52px;height:52px;border-radius:26px;padding:0 14px;border:0;background:#5d6c8f;color:#fff;font-size:1.2rem;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.3);display:grid;place-items:center;transition:transform .3s var(--spring,ease),box-shadow .3s var(--ease,ease),opacity .3s,visibility 0s}
+.fsfab{position:absolute;right:0;bottom:calc(100% + 10px);min-width:52px;height:52px;border-radius:26px;padding:0 14px;border:0;background:#d6457a;color:#fff;font-size:1.2rem;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.3);display:grid;place-items:center;transition:transform .3s var(--spring,ease),box-shadow .3s var(--ease,ease),opacity .3s,visibility 0s}
 .fsfab[hidden]{display:none}
 .fsfab .ic{font-size:1.3rem;transition:transform .35s var(--spring,ease)}
 .fsfab:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 14px 28px -8px rgba(0,0,0,.45),0 0 0 4px var(--tz-glow,rgba(106,63,209,.18))}
@@ -435,11 +435,7 @@ body.at-home .quicklinks{display:block;animation:hup .65s var(--ease) both}
 .fsfab:active{transform:scale(.92)}
 .fsfab .rip{background:#fff;opacity:.4}
 .fsfab.away{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s,visibility 0s .25s}
-/* right-hand stack: Timer stays put, Calendar sits above it, Fullscreen above Calendar */
-.fabr .calfab{position:absolute;right:0;bottom:calc(100% + 10px)}
-.calfab.away,.fsfab.away{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s,visibility 0s .25s}
-.tmp,.calp{bottom:calc(142px + env(safe-area-inset-bottom,0px));max-height:calc(100vh - 182px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px))}
-@media (max-width:640px){.tmp,.calp{bottom:calc(142px + env(safe-area-inset-bottom,0px))!important}}
+@media (max-width:480px){.fsfab{bottom:calc(100% + 8px)}}
 </style>
 </head>
 <body>
@@ -1819,7 +1815,7 @@ var TZP={"50-10":[50,10],"45-15":[45,15],"25-5":[25,5],"pomo":[25,5]},TVA=null,T
 window.TZP=TZP;
 try{var q=JSON.parse(localStorage.getItem(TMK+"q")||"null");if(q&&typeof q==="object")TQ=q;}catch(e){}
 window.tmUnlock=function(){try{if(!TVA)TVA=new Audio();TVA.muted=true;TVA.src=TV.study[0];var p=TVA.play();if(p&&p.then)p.then(function(){TVA.pause();TVA.currentTime=0;}).catch(function(){});}catch(e){}};
-window.tmVoice=function(kind){try{var a=TV[kind];if(!a||!a.length)return;var i;do{i=Math.floor(Math.random()*a.length);}while(a.length>1&&i===TLAST[kind]);TLAST[kind]=i;if(!TVA)TVA=new Audio();TVA.pause();TVA.muted=false;TVA.volume=1;TVA.src=a[i];TVA.currentTime=0;var p=TVA.play();if(p&&p.catch)p.catch(function(){});}catch(e){}};
+window.tmVoice=function(kind){try{var a=TV[kind];if(!a||!a.length)return;var i;do{i=Math.floor(Math.random()*a.length);}while(a.length>1&&i===TLAST[kind]);TLAST[kind]=i;if(!TVA)TVA=new Audio();TVA.pause();TVA.muted=false;TVA.volume=0.5;TVA.src=a[i];TVA.currentTime=0;var p=TVA.play();if(p&&p.catch)p.catch(function(){});}catch(e){}};
 window.tmBeep=function(){try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}tmVoice(TM&&TM.k==="study"?"study":"brk");};
 window.tmAutoBrk=function(){
  /* custom cycles: when a break ends, start the next study cycle by itself */
@@ -2097,17 +2093,7 @@ else paint();
 
 <script>
 (function(){
-var b=document.getElementById("fsfab"),cf=document.getElementById("calfab");
-function open(id){var n=document.getElementById(id);return !!(n&&!n.hidden);}
-/* keep the stacked buttons clear of whichever panel is open */
-function away(){
- var mob=window.matchMedia("(max-width:640px)").matches,right=open("tmp")||open("calp"),left=open("gdp")||open("mup");
- if(b)b.classList.toggle("away",right||(mob&&left));
- if(cf)cf.classList.toggle("away",mob&&left);
-}
-["tmp","calp","gdp","mup"].forEach(function(id){var n=document.getElementById(id);if(n)new MutationObserver(away).observe(n,{attributes:true,attributeFilter:["hidden"]});});
-window.addEventListener("resize",away);away();
-if(!b)return;
+var b=document.getElementById("fsfab");if(!b)return;
 var de=document.documentElement;
 var req=de.requestFullscreen||de.webkitRequestFullscreen||de.msRequestFullscreen;
 var ok=req&&(document.fullscreenEnabled!==false)&&(document.webkitFullscreenEnabled!==false);
@@ -2123,7 +2109,10 @@ b.addEventListener("click",function(){
 });
 document.addEventListener("fullscreenchange",sync);
 document.addEventListener("webkitfullscreenchange",sync);
-sync();
+/* step aside while the timer or calendar panel is open on the right */
+function away(){var a=document.getElementById("tmp"),c=document.getElementById("calp");b.classList.toggle("away",!!((a&&!a.hidden)||(c&&!c.hidden)));}
+["tmp","calp"].forEach(function(id){var n=document.getElementById(id);if(n)new MutationObserver(away).observe(n,{attributes:true,attributeFilter:["hidden"]});});
+sync();away();
 })();
 </script>
 </body>
