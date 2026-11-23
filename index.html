@@ -427,15 +427,17 @@ body.at-home .quicklinks{display:block;animation:hup .65s var(--ease) both}
 /* fullscreen floating button */
 .ic-fs{--m:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5%22/%3E%3C/svg%3E")}
 .ic-fsx{--m:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M9 4v5H4 M15 4v5h5 M9 20v-5H4 M15 20v-5h5%22/%3E%3C/svg%3E")}
-.fsfab{position:absolute;right:0;bottom:calc(100% + 10px);min-width:52px;height:52px;border-radius:26px;padding:0 14px;border:0;background:#d6457a;color:#fff;font-size:1.2rem;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.3);display:grid;place-items:center;transition:transform .3s var(--spring,ease),box-shadow .3s var(--ease,ease),opacity .3s,visibility 0s}
+.fsfab{position:relative;min-width:52px;height:52px;border-radius:26px;padding:0 14px;border:0;background:#52627c;color:#fff;font-size:1.2rem;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.3);display:grid;place-items:center;transition:transform .3s var(--spring,ease),box-shadow .3s var(--ease,ease),opacity .3s,visibility 0s}
 .fsfab[hidden]{display:none}
 .fsfab .ic{font-size:1.3rem;transition:transform .35s var(--spring,ease)}
 .fsfab:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 14px 28px -8px rgba(0,0,0,.45),0 0 0 4px var(--tz-glow,rgba(106,63,209,.18))}
 .fsfab:hover .ic{transform:scale(1.15)}
 .fsfab:active{transform:scale(.92)}
 .fsfab .rip{background:#fff;opacity:.4}
-.fsfab.away{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s,visibility 0s .25s}
-@media (max-width:480px){.fsfab{bottom:calc(100% + 8px)}}
+.fsfab.away{display:none}
+/* right-hand stack, top to bottom: fullscreen, calendar, timer */
+.fabr{flex-direction:column;align-items:flex-end}
+.tmp,.calp{bottom:calc(144px + env(safe-area-inset-bottom,0px));max-height:calc(100vh - 184px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px))}
 </style>
 </head>
 <body>
@@ -475,7 +477,7 @@ body.at-home .quicklinks{display:block;animation:hup .65s var(--ease) both}
 <ul><li><b>Rank banner:</b> your rank (of 37), your shards and how many more you need for the next rank.</li>
 <li><b>Wallet:</b> <i class="ic ic-gem"></i> Tanzanite shards (of 10,000) and <i class="ic ic-sparkle"></i> Stardust, plus the Marketplace and Backup buttons.</li>
 <li><b>Tabs:</b> Overview, Syllabus, one per subject, Study log, Exam files and To revise.</li>
-<li><b>Bottom left:</b> this guide and the focus sounds (bird icon). <b>Bottom right:</b> the calendar and the timer.</li></ul></details>
+<li><b>Bottom left:</b> this guide and the focus sounds (bird icon). <b>Bottom right:</b> fullscreen, the calendar and the timer, stacked in that order.</li></ul></details>
 
 <details><summary>Tracking a subject</summary>
 <ul><li><b>Weights:</b> each chapter has importance, difficulty and volume ratings (1 to 5). Importance counts most (40%), then volume (35%), then difficulty (25%). They set the chapter&rsquo;s &ldquo;% of paper&rdquo;, so a heavy chapter moves your progress more. The ratings are starting guesses, so change them under each chapter.</li>
@@ -513,7 +515,7 @@ body.at-home .quicklinks{display:block;animation:hup .65s var(--ease) both}
 <p>Make a file for an exam series, such as &ldquo;Physics model tests&rdquo;, open it and add each exam with a name, a score (any format, like 38/50) and a date. Nothing in the game uses these scores, so they stay an honest record.</p></details>
 
 <details><summary>Calendar and tasks</summary>
-<ul><li>Tap the calendar icon (next to the timer). The badge shows how many tasks are still open today.</li>
+<ul><li>Tap the calendar icon (just above the timer). The badge shows how many tasks are still open today.</li>
 <li>Pick a day in the month grid. Dots under a date mean it has tasks.</li>
 <li><b>Add a task:</b> title, optional time, optional note and a colour. Tick it when done, edit it (<i class="ic ic-pencil"></i>) to change the text or move it to another date, or delete it.</li>
 <li><b>Coming up</b> lists your next open tasks and warns you about overdue ones. Tap one to jump to its day.</li>
