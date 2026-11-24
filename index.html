@@ -789,6 +789,7 @@ body.at-home .quest-dock{display:flex;animation:hup .7s var(--ease) .08s both}
 .tbx-top .ttl{flex:1;min-width:0}
 .tbx-eye{font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--tz);font-weight:800}
 .tbx-title{margin:1px 0 0;font-size:clamp(1.4rem,5vw,1.8rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;background:linear-gradient(100deg,var(--ink) 30%,var(--tz) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tb-next{flex:none;border:1px solid color-mix(in srgb,var(--tz) 35%,var(--line));border-radius:999px;padding:9px 13px;background:color-mix(in srgb,var(--tz) 9%,var(--card));color:var(--tz);font:800 .78rem Figtree,system-ui,sans-serif;cursor:pointer;transition:background .2s,transform .2s}.tb-next:hover{background:color-mix(in srgb,var(--tz) 17%,var(--card));transform:translateY(-1px)}
 .tbx-date{display:flex;align-items:center;gap:8px;padding:7px 13px;border-radius:99px;border:1px solid color-mix(in srgb,var(--tz) 30%,var(--line));background:color-mix(in srgb,var(--tz) 8%,var(--card));font-size:.78rem;font-weight:800;white-space:nowrap}
 .tbx-date .qdot{width:8px;height:8px}
 .tbx-x{width:40px;height:40px;flex:none;display:grid;place-items:center;padding:0;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 70%,transparent);color:var(--ink);cursor:pointer;transition:transform .3s var(--spring),border-color .2s}
@@ -2907,19 +2908,22 @@ setInterval(function(){if(state&&state.week!==weekStart(new Date())){state=fresh
 /* ===== Timeboxing ===== */
 (function(){
 'use strict';
-var KEY='tz_timebox_v1',HOURS=[],st=null,saveT=null,isOpen=false,toastT=null,tick=null,i;
+var KEY='tz_timebox_v1',HOURS=[],st=null,viewDate=null,saveT=null,isOpen=false,toastT=null,tick=null,i;
 for(i=4;i<=22;i++)HOURS.push(i);
 var $=function(id){return document.getElementById(id)};
 var p2=function(n){return String(n).padStart(2,'0')};
 var X_SVG='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
 function day(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
-function fresh(){return {date:day(),pri:['','',''],dump:'',notes:'',slots:{}}}
-function persist(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+function shiftDate(base,n){var a=base.split('-'),d=new Date(+a[0],+a[1]-1,+a[2]);d.setDate(d.getDate()+n);return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+function fresh(date){return {date:date||day(),pri:['','',''],dump:'',notes:'',slots:{}}}
+function persist(){try{localStorage.setItem(KEY+'_'+st.date,JSON.stringify(st))}catch(e){}}
 function flush(){if(saveT){clearTimeout(saveT);saveT=null;persist()}}
 function queueSave(){clearTimeout(saveT);saveT=setTimeout(function(){saveT=null;persist()},250)}
 /* returns 'reset' when yesterday's (or an older) page was cleared for a new day */
-function load(){var x=null,r='';try{x=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
-  if(!x||typeof x!=='object'||x.date!==day()){r=x&&x.date?'reset':'';st=fresh();persist();return r}
+function load(date){date=date||day();var x=null,r='';try{x=JSON.parse(localStorage.getItem(KEY+'_'+date)||'null')}catch(e){}
+  /* Migrate the original single-day save without losing today's existing plan. */
+  if(!x&&date===day()){try{x=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}if(x&&x.date===date){try{localStorage.setItem(KEY+'_'+date,JSON.stringify(x))}catch(e){}}}
+  if(!x||typeof x!=='object'||x.date!==date){st=fresh(date);persist();return r}
   st=x;if(!Array.isArray(st.pri))st.pri=['','',''];while(st.pri.length<3)st.pri.push('');st.dump=st.dump||'';st.notes=st.notes||'';st.slots=st.slots&&typeof st.slots==='object'?st.slots:{};return r}
 function dateObj(){var a=st.date.split('-');return new Date(+a[0],+a[1]-1,+a[2])}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -2930,19 +2934,19 @@ function build(){
   var ov=document.createElement('div');ov.className='tbx';ov.id='tbx';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Timeboxing');ov.setAttribute('aria-hidden','true');
   var pri=[1,2,3].map(function(n,k){return '<div class="tb-pri"><span class="tb-n">'+n+'</span><input class="tb-in" type="text" data-p="'+k+'" maxlength="140" placeholder="'+(k===0?'The one thing that matters most':k===1?'Next up':'If time allows')+'" aria-label="Priority '+n+'"></div>'}).join('');
   var rows=HOURS.map(function(h){var h12=((h+11)%12)+1,ap=h<12?'AM':'PM';return '<div class="tb-row'+(h===12?' noon':'')+'" data-h="'+h+'"><div class="tb-hr"><b>'+h12+'</b><small>'+ap+'</small></div>'+cell(h,0)+cell(h,30)+'</div>'}).join('');
-  ov.innerHTML='<div class="tbx-top"><div class="ttl"><div class="tbx-eye">Today’s plan</div><h2 class="tbx-title">Timeboxing</h2></div><div class="tbx-date"><i class="qdot"></i><span id="tbDate"></span></div><button class="tbx-x" id="tbClose" type="button" aria-label="Close timeboxing">'+X_SVG+'</button></div>'+
+  ov.innerHTML='<div class="tbx-top"><div class="ttl"><div class="tbx-eye" id="tbEye">Today’s plan</div><h2 class="tbx-title">Timeboxing</h2></div><button class="tb-next" id="tbNext" type="button">Plan tomorrow →</button><div class="tbx-date"><i class="qdot"></i><span id="tbDate"></span></div><button class="tbx-x" id="tbClose" type="button" aria-label="Close timeboxing">'+X_SVG+'</button></div>'+
   '<div class="tbx-scroll" id="tbScroll"><div class="tbx-wrap">'+
     '<div class="tb-left"><section class="tb-card"><h3 class="tb-h"><i class="qdot"></i>Top priorities</h3>'+pri+'</section><section class="tb-card tb-dump"><h3 class="tb-h"><i class="qdot"></i>Brain dump</h3><textarea class="tb-ta" id="tbDump" placeholder="Get everything out of your head…" aria-label="Brain dump"></textarea></section></div>'+
     '<section class="tb-card tb-sched" aria-label="Schedule"><div class="tb-colh"><span></span><span>:00</span><span>:30</span></div>'+rows+'</section>'+
     '<section class="tb-card tb-notes"><h3 class="tb-h"><i class="qdot"></i>Notes</h3><textarea class="tb-ta" id="tbNotes" placeholder="Anything worth remembering…" aria-label="Notes"></textarea></section>'+
-    '<div class="tb-end"><button class="tb-dl" id="tbDl" type="button"><i class="ic ic-dl"></i><span>Download today’s timebox (JPG)</span></button><p class="tb-foot">This page clears itself every day at midnight. Download a copy before then to keep it.</p><button class="tb-clear" id="tbClear" type="button">Clear today’s page</button></div>'+
+    '<div class="tb-end"><button class="tb-dl" id="tbDl" type="button"><i class="ic ic-dl"></i><span id="tbDlLabel">Download today’s timebox (JPG)</span></button><p class="tb-foot">Your plans are saved separately by date, so you can prepare ahead without changing today’s schedule.</p><button class="tb-clear" id="tbClear" type="button">Clear this page</button></div>'+
   '</div></div>';
   document.body.appendChild(ov);
   var t=document.createElement('div');t.className='tb-toast';t.id='tbToast';t.setAttribute('role','status');document.body.appendChild(t);
 }
 function grow(ta){var w=ta.closest('.tbc');if(w)w.dataset.v=ta.value;var c=ta.closest('.tb-cell');if(c)c.classList.toggle('has',!!ta.value.trim())}
 function fill(){
-  var ov=$('tbx');$('tbDate').innerHTML='<span class="long">'+esc(dateObj().toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'}))+'</span>';
+  var ov=$('tbx');$('tbEye').textContent=st.date===day()?'Today’s plan':'Tomorrow’s plan';$('tbNext').textContent=st.date===day()?'Plan tomorrow →':'← Back to today';$('tbDlLabel').textContent='Download '+(st.date===day()?'today’s':'tomorrow’s')+' timebox (JPG)';$('tbDate').innerHTML='<span class="long">'+esc(dateObj().toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'}))+'</span>';
   ov.querySelectorAll('.tb-in').forEach(function(el){el.value=st.pri[+el.dataset.p]||''});
   $('tbDump').value=st.dump;$('tbNotes').value=st.notes;
   ov.querySelectorAll('textarea[data-slot]').forEach(function(ta){ta.value=st.slots[ta.dataset.slot]||'';grow(ta)});
@@ -2960,16 +2964,17 @@ function scrollNow(){var sc=$('tbScroll'),c=$('tbx').querySelector('.tb-cell.now
 function toast(msg){var t=$('tbToast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show')},3000)}
 
 /* ---------- open / close / daily reset ---------- */
-function open(){var r=load();fill();var ov=$('tbx');ov.classList.add('open');ov.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';isOpen=true;markNow();
+function open(){viewDate=day();var r=load(viewDate);fill();var ov=$('tbx');ov.classList.add('open');ov.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';isOpen=true;markNow();
   setTimeout(scrollNow,60);if(r==='reset')toast('A new day. Yesterday’s timebox has been cleared.');
   if(!tick)tick=setInterval(heartbeat,20000)}
 function close(){flush();var ov=$('tbx');ov.classList.remove('open');ov.setAttribute('aria-hidden','true');document.body.style.overflow='';isOpen=false}
-function heartbeat(){if(st&&st.date!==day()){flush();var r=load();if(isOpen){fill();toast('Midnight passed. A fresh timebox is ready.')}return}if(isOpen)markNow()}
+function heartbeat(){if(viewDate===day()&&st&&st.date!==day()){flush();load(day());if(isOpen){fill();toast('Midnight passed. A fresh timebox is ready.')}return}if(isOpen)markNow()}
 
 /* ---------- events ---------- */
 function wire(){
   var ov=$('tbx');
   $('tbClose').addEventListener('click',close);
+  $('tbNext').addEventListener('click',function(){flush();viewDate=st.date===day()?shiftDate(day(),1):day();load(viewDate);fill();var sc=$('tbScroll');if(sc)sc.scrollTop=0;markNow();toast(viewDate===day()?'Back to today’s plan.':'Tomorrow’s plan is ready.');});
   ov.addEventListener('input',function(e){var t=e.target;
     if(t.classList.contains('tb-in')){st.pri[+t.dataset.p]=t.value}
     else if(t.id==='tbDump'){st.dump=t.value}
@@ -2981,7 +2986,7 @@ function wire(){
     var list=null;if(t.classList&&t.classList.contains('tb-in'))list=[].slice.call(ov.querySelectorAll('.tb-in'));else if(t.dataset&&t.dataset.slot)list=[].slice.call(ov.querySelectorAll('textarea[data-slot]'));
     if(!list)return;e.preventDefault();var n=list[list.indexOf(t)+1];if(n){n.focus();n.scrollIntoView({block:'center',behavior:'smooth'})}else t.blur()});
   $('tbDl').addEventListener('click',download);
-  $('tbClear').addEventListener('click',function(){if(confirm('Clear everything on today’s timebox?')){st=fresh();persist();fill();toast('Today’s page is clear.')}});
+  $('tbClear').addEventListener('click',function(){if(confirm('Clear everything on this timebox?')){st=fresh(viewDate);persist();fill();toast('This page is clear.')}});
   document.addEventListener('keydown',function(e){if(isOpen&&e.key==='Escape')close()});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)heartbeat()});
   window.addEventListener('pagehide',flush);
