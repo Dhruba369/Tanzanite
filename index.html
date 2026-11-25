@@ -890,6 +890,28 @@ body.at-home .quest-dock{display:flex;animation:hup .7s var(--ease) .08s both}
 .tb-lg small{color:var(--mute);font-weight:700;font-size:.78rem}
 .tb-pie-e{margin:0;color:var(--mute);font-size:.88rem;text-align:center;max-width:300px;line-height:1.5}
 @media(min-width:860px){.tb-pie{grid-column:1/-1}}
+.tb-lock{position:absolute;right:20px;bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:4;width:54px;height:54px;display:grid;place-items:center;padding:0;border-radius:50%;border:1px solid color-mix(in srgb,var(--tz) 40%,var(--line));background:color-mix(in srgb,var(--tz) 12%,var(--card));color:var(--tz);cursor:pointer;box-shadow:var(--sh2);transition:transform .3s var(--spring),box-shadow .2s}
+.tb-lock:hover{transform:translateY(-2px) scale(1.05)}
+.tb-lock[aria-pressed=true]{color:#fff;background:linear-gradient(135deg,var(--tz),color-mix(in srgb,var(--tz) 50%,var(--acc)));box-shadow:0 0 0 5px var(--tz-glow),0 10px 24px -6px var(--tz)}
+.tbx.locked textarea,.tbx.locked .tb-in{pointer-events:none}
+.tbx.locked .tbx-wrap{-webkit-user-select:none;user-select:none;cursor:default}
+.tbx.locked .tb-cell{cursor:pointer}
+.tb-lock[hidden]{display:none}
+.tb-lock:disabled{opacity:.38;cursor:not-allowed;transform:none;box-shadow:none}
+#tbMove{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+.tb-mini{width:46px;height:46px;right:24px}
+#tbUndo{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+#tbTrash{bottom:calc(206px + env(safe-area-inset-bottom,0px))}
+#tbTrash:not(:disabled):hover{color:#e5484d;border-color:#e5484d}
+.tb-ghost{position:fixed;left:0;top:0;z-index:9;pointer-events:none;padding:8px 14px;border-radius:10px;font:800 .8rem Figtree,system-ui,sans-serif;letter-spacing:.04em;color:#fff;background:linear-gradient(135deg,var(--tz),color-mix(in srgb,var(--tz) 50%,var(--acc)));box-shadow:0 10px 24px -6px var(--tz),0 0 0 3px var(--tz-glow);white-space:nowrap}
+.tb-ghost[hidden]{display:none}
+.tb-cell.lifted{opacity:.5;outline:2px dashed var(--tz);outline-offset:-3px}
+.tbx.moving textarea{pointer-events:none;user-select:none}
+.tbx.moving .tb-cell,.tbx.moving .tb-cell *{cursor:grab}
+.tbx.holding .tb-cell,.tbx.holding .tb-cell *{cursor:grabbing}
+.tbx.moving .tb-cell:hover{outline:2px dashed var(--tz);outline-offset:-3px}
+
+
 @media(max-width:600px){.tbx-top{flex-wrap:wrap}.tbx-top .ttl{flex-basis:100%}}
 
 
@@ -2950,7 +2972,7 @@ setInterval(function(){if(state&&state.week!==weekStart(new Date())){state=fresh
 (function(){
 'use strict';
 var KEY='tz_timebox_v1',HOURS=[],st=null,viewDate=null,saveT=null,isOpen=false,toastT=null,tick=null,i;
-for(i=4;i<=24;i++)HOURS.push(i);var CK='tz_timebox_cats_v1',cats=[],paint=false,brushId=null;
+for(i=4;i<=24;i++)HOURS.push(i);var CK='tz_timebox_cats_v1',cats=[],paint=false,brushId=null,hideCol=false,locked=false,moving=false,held=null,undoS=[],HK='tz_timebox_hidecol',LK='tz_timebox_lock';
 var $=function(id){return document.getElementById(id)};
 var p2=function(n){return String(n).padStart(2,'0')};
 var X_SVG='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
@@ -2975,7 +2997,7 @@ function build(){
   var ov=document.createElement('div');ov.className='tbx';ov.id='tbx';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Timeboxing');ov.setAttribute('aria-hidden','true');
   var pri=[1,2,3].map(function(n,k){return '<div class="tb-pri"><span class="tb-n">'+n+'</span><input class="tb-in" type="text" data-p="'+k+'" maxlength="140" placeholder="'+(k===0?'The one thing that matters most':k===1?'Next up':'If time allows')+'" aria-label="Priority '+n+'"></div>'}).join('');
   var rows=HOURS.map(function(h){var h12=((h+11)%12)+1,ap=(h<12||h>23)?'AM':'PM';return '<div class="tb-row'+(h===12?' noon':'')+'" data-h="'+h+'"><div class="tb-hr"><b>'+h12+'</b><small>'+ap+'</small></div>'+cell(h,0)+cell(h,30)+'</div>'}).join('');
-  ov.innerHTML='<div class="tbx-top"><div class="ttl"><div class="tbx-eye" id="tbEye">Today’s plan</div><h2 class="tbx-title">Timeboxing</h2></div><button class="tb-next tb-cats" id="tbCats" type="button">Categories</button><button class="tb-pal" id="tbPal" type="button" aria-pressed="false" aria-label="Paint blocks with a category" title="Paint blocks">'+PAL_SVG+'</button><button class="tb-next" id="tbNext" type="button">Plan tomorrow →</button><div class="tbx-date"><i class="qdot"></i><span id="tbDate"></span></div><button class="tbx-x" id="tbClose" type="button" aria-label="Close timeboxing">'+X_SVG+'</button></div>'+
+  ov.innerHTML='<div class="tbx-top"><div class="ttl"><div class="tbx-eye" id="tbEye">Today’s plan</div><h2 class="tbx-title">Timeboxing</h2></div><button class="tb-next tb-cats" id="tbCats" type="button">Categories</button><button class="tb-pal" id="tbEye" type="button" aria-pressed="false" aria-label="Hide category colours" title="Hide category colours">'+EYE_SVG+'</button><button class="tb-pal" id="tbPal" type="button" aria-pressed="false" aria-label="Paint blocks with a category" title="Paint blocks">'+PAL_SVG+'</button><button class="tb-next" id="tbNext" type="button">Plan tomorrow →</button><div class="tbx-date"><i class="qdot"></i><span id="tbDate"></span></div><button class="tbx-x" id="tbClose" type="button" aria-label="Close timeboxing">'+X_SVG+'</button></div>'+
   '<div class="tb-brush" id="tbBrush" hidden></div><div class="tbx-scroll" id="tbScroll"><div class="tbx-wrap">'+
     '<div class="tb-left"><section class="tb-card"><h3 class="tb-h"><i class="qdot"></i>Top priorities</h3>'+pri+'</section><section class="tb-card tb-dump"><h3 class="tb-h"><i class="qdot"></i>Brain dump</h3><textarea class="tb-ta" id="tbDump" placeholder="Get everything out of your head…" aria-label="Brain dump"></textarea></section></div>'+
     '<section class="tb-card tb-sched" aria-label="Schedule"><div class="tb-colh"><span></span><span>:00</span><span>:30</span></div>'+rows+'</section>'+
@@ -2984,12 +3006,48 @@ function build(){
     '<div class="tb-end"><button class="tb-dl" id="tbDl" type="button"><i class="ic ic-dl"></i><span id="tbDlLabel">Download today’s timebox (JPG)</span></button><p class="tb-foot">Your plans are saved separately by date, so you can prepare ahead without changing today’s schedule.</p><button class="tb-clear" id="tbClear" type="button">Clear this page</button></div>'+
   '</div></div>';
   document.body.appendChild(ov);
-  ov.insertAdjacentHTML('beforeend','<div class="tbm" id="tbm" hidden><div class="tbm-card" role="dialog" aria-label="Categories"><div class="tbm-h"><h3>Categories</h3><button class="tbx-x" id="tbmX" type="button" aria-label="Close">'+X_SVG+'</button></div><div class="tbm-list" id="tbmList"></div><div class="tbm-add"><input type="color" id="tbNewC" value="#6a3fd1" aria-label="Colour"><input class="tbm-in" id="tbNewN" type="text" maxlength="24" placeholder="New category name" aria-label="New category name"><button class="tb-next" id="tbAdd" type="button">Add</button></div></div></div>');
+  ov.insertAdjacentHTML('beforeend','<div class="tb-ghost" id="tbGhost" hidden></div><button class="tb-lock tb-mini" id="tbTrash" type="button" title="Delete held block" hidden disabled>'+TRASH_SVG+'</button><button class="tb-lock tb-mini" id="tbUndo" type="button" title="Undo" hidden disabled>'+UNDO_SVG+'</button><button class="tb-lock" id="tbMove" type="button" aria-pressed="false" title="Move blocks">'+MOVE_SVG+'</button><button class="tb-lock" id="tbLock" type="button" aria-pressed="false" title="Lock editing">'+UNLOCK_SVG+'</button><div class="tbm" id="tbm" hidden><div class="tbm-card" role="dialog" aria-label="Categories"><div class="tbm-h"><h3>Categories</h3><button class="tbx-x" id="tbmX" type="button" aria-label="Close">'+X_SVG+'</button></div><div class="tbm-list" id="tbmList"></div><div class="tbm-add"><input type="color" id="tbNewC" value="#6a3fd1" aria-label="Colour"><input class="tbm-in" id="tbNewN" type="text" maxlength="24" placeholder="New category name" aria-label="New category name"><button class="tb-next" id="tbAdd" type="button">Add</button></div></div></div>');
   var t=document.createElement('div');t.className='tb-toast';t.id='tbToast';t.setAttribute('role','status');document.body.appendChild(t);
 }
 var PAL_SVG='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 0 0 0 18c1.4 0 2-.9 2-1.8 0-1-.8-1.4-.8-2.4 0-1 .8-1.8 1.9-1.8H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7.2" r="1"/><circle cx="15" cy="7.8" r="1"/></svg>';
+var EYE_SVG='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+EYEOFF_SVG='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg>',
+LOCK_SVG='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+UNLOCK_SVG='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>';
+function ic(d){return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>'}
+var MOVE_SVG=ic('<path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/>'),
+UNDO_SVG=ic('<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>'),
+TRASH_SVG=ic('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>');
+function lbl(k){var p=k.split(':'),h=+p[0];return (((h+11)%12)+1)+':'+p[1]+' '+((h<12||h>23)?'AM':'PM')}
+function gi(k){return {t:st.slots[k]||'',c:st.cat[k]||'',d:st.done[k]||0}}
+function si(k,o){if(o.t)st.slots[k]=o.t;else delete st.slots[k];if(o.c)st.cat[k]=o.c;else delete st.cat[k];if(o.d)st.done[k]=1;else delete st.done[k];var ta=$('tbx').querySelector('textarea[data-slot="'+k+'"]');if(ta){ta.value=o.t;grow(ta)}}
+function gpos(x,y){$('tbGhost').style.transform='translate('+(x+14)+'px,'+(y+14)+'px)'}
+function ui(){var ov=$('tbx'),g=$('tbGhost');ov.classList.toggle('holding',!!held);
+  ov.querySelectorAll('.tb-cell.lifted').forEach(function(c){c.classList.remove('lifted')});
+  if(held){var c=ov.querySelector('.tb-cell[data-k="'+held.from+'"]');if(c)c.classList.add('lifted');g.textContent=lbl(held.t);g.hidden=false}else g.hidden=true;
+  $('tbUndo').disabled=!undoS.length;$('tbTrash').disabled=!held}
+function syncHeld(){if(held&&(held.date!==st.date||!(st.slots[held.from]||'').trim()))held=null;ui()}
+function pushU(){undoS.push(JSON.stringify({d:st.date,s:st.slots,c:st.cat,x:st.done,h:held}));if(undoS.length>60)undoS.shift()}
+function undo(){if(!undoS.length)return;var a=JSON.parse(undoS[undoS.length-1]);if(a.d!==st.date){toast('Switch back to that day to undo.');return}undoS.pop();st.slots=a.s;st.cat=a.c;st.done=a.x;held=a.h;fill();queueSave();ui()}
+function trash(){if(!held)return;pushU();si(held.from,{t:'',c:'',d:0});held=null;queueSave();renderPie();ui();toast('Block removed.')}
+function mvClick(k,x,y){gpos(x,y);
+  if(!held){if(!(st.slots[k]||'').trim()){toast('Tap a block that has something in it.');return}pushU();held={from:k,t:k,date:st.date};ui();return}
+  pushU();
+  if(k===held.from){held=null;ui();return}
+  var a=gi(held.from),b=gi(k);
+  if(b.t.trim()){si(k,a);si(held.from,b);held.t=k}else{si(k,a);si(held.from,{t:'',c:'',d:0});held=null}
+  queueSave();renderPie();ui()}
+function setMove(on){if(on&&locked){toast('Unlock first to move blocks.');return}if(on&&paint)setPaint(false);moving=on;if(!on)held=null;
+  $('tbx').classList.toggle('moving',on);$('tbMove').setAttribute('aria-pressed',on?'true':'false');$('tbUndo').hidden=!on;$('tbTrash').hidden=!on;ui();
+  if(on)toast('Tap a block to pick it up, then tap where it goes.')}
+function setHide(on,quiet){hideCol=on;try{localStorage.setItem(HK,on?'1':'0')}catch(e){}var b=$('tbEye');if(b){b.setAttribute('aria-pressed',on?'true':'false');b.innerHTML=on?EYEOFF_SVG:EYE_SVG;b.title=on?'Show category colours':'Hide category colours'}refreshCells();if(!quiet)toast(on?'Category colours hidden.':'Category colours shown.')}
+function setLock(on,quiet){if(on&&held){toast('Drop or trash the held block first.');return}if(on&&moving)setMove(false);locked=on;try{localStorage.setItem(LK,on?'1':'0')}catch(e){}var ov=$('tbx'),b=$('tbLock');if(on&&paint)setPaint(false);ov.classList.toggle('locked',on);
+  ov.querySelectorAll('textarea,.tb-in').forEach(function(t){t.readOnly=on;if(on)t.blur()});
+  if(b){b.setAttribute('aria-pressed',on?'true':'false');b.innerHTML=on?LOCK_SVG:UNLOCK_SVG;b.title=on?'Unlock editing':'Lock editing'}
+  var sel=window.getSelection&&window.getSelection();if(on&&sel)sel.removeAllRanges();
+  if(!quiet)toast(on?'Locked. Triple-click a block to cross it out.':'Unlocked. You can edit again.')}
 function catById(id){for(var j=0;j<cats.length;j++)if(cats[j].id===id)return cats[j];return null}
-function paintCell(c){var k=c.dataset.k,ct=st&&catById(st.cat[k]);c.classList.toggle('cat',!!ct);if(ct)c.style.setProperty('--cc',ct.color);else c.style.removeProperty('--cc');c.classList.toggle('done',!!(st&&st.done[k]))}
+function paintCell(c){var k=c.dataset.k,ct=!hideCol&&st&&catById(st.cat[k]);c.classList.toggle('cat',!!ct);if(ct)c.style.setProperty('--cc',ct.color);else c.style.removeProperty('--cc');c.classList.toggle('done',!!(st&&st.done[k]))}
 function grow(ta){var w=ta.closest('.tbc');if(w)w.dataset.v=ta.value;var c=ta.closest('.tb-cell');if(c){c.classList.toggle('has',!!ta.value.trim());paintCell(c)}}
 function loadCats(){var a=null;try{a=JSON.parse(localStorage.getItem(CK)||'null')}catch(e){}
   if(!Array.isArray(a))a=[['Physics','#6a3fd1'],['Chemistry','#1f9d8a'],['Math','#1f6fe0'],['Biology','#2fa84f'],['Rest','#e08a1f']].map(function(p,k){return {id:'d'+k,name:p[0],color:p[1]}});
@@ -3010,15 +3068,15 @@ function renderPie(){var el=$('tbPie');if(!el||!st)return;var cnt={},tot=0,k;
     leg+='<div class="tb-lg" style="--cc:'+c.color+'"><i></i><span>'+esc(c.name||'Untitled')+'</span><span>'+fmtH(n)+' <small>'+Math.round(n/tot*100)+'%</small></span></div>'});
   el.innerHTML='<svg class="tb-donut" viewBox="0 0 210 210" role="img" aria-label="Time by category"><circle cx="105" cy="105" r="'+R+'" fill="none" stroke="currentColor" stroke-opacity=".08" stroke-width="26"/>'+seg+'<text x="105" y="102" text-anchor="middle" style="fill:var(--ink);font:800 30px Figtree,system-ui,sans-serif">'+fmtH(tot)+'</text><text x="105" y="124" text-anchor="middle" style="fill:var(--mute);font:700 11px Figtree,system-ui,sans-serif;letter-spacing:.16em">PLANNED</text></svg><div class="tb-leg">'+leg+'</div>'}
 function renderList(){var l=$('tbmList');l.innerHTML=cats.length?cats.map(function(c){return '<div class="tbm-row" data-id="'+c.id+'"><input type="color" value="'+c.color+'" aria-label="Colour"><input class="tbm-in" type="text" maxlength="24" value="'+esc(c.name)+'" aria-label="Category name"><button class="tbm-del" type="button" aria-label="Delete category">'+X_SVG+'</button></div>'}).join(''):'<p class="tbm-empty">No categories yet. Add one below.</p>'}
-function openCats(){renderList();$('tbm').hidden=false;setTimeout(function(){$('tbNewN').focus()},60)}
+function openCats(){if(locked){toast('Unlock first to edit categories.');return}renderList();$('tbm').hidden=false;setTimeout(function(){$('tbNewN').focus()},60)}
 function closeCats(){$('tbm').hidden=true}
-function setPaint(on){if(on&&!cats.length){openCats();toast('Create a category first.');return}paint=on;$('tbx').classList.toggle('paint',on);$('tbPal').setAttribute('aria-pressed',on?'true':'false');$('tbBrush').hidden=!on;if(on)renderBrush()}
+function setPaint(on){if(on&&locked){toast('Unlock first to paint blocks.');return}if(on&&moving)setMove(false);if(on&&hideCol)setHide(false,true);if(on&&!cats.length){openCats();toast('Create a category first.');return}paint=on;$('tbx').classList.toggle('paint',on);$('tbPal').setAttribute('aria-pressed',on?'true':'false');$('tbBrush').hidden=!on;if(on)renderBrush()}
 function addCat(){var n=$('tbNewN'),name=n.value.trim();if(!name){n.focus();return}cats.push({id:'c'+Date.now().toString(36)+Math.floor(Math.random()*1e3),name:name,color:$('tbNewC').value});n.value='';saveCats();renderList();renderBrush();renderPie()}
 function fill(){
   var ov=$('tbx');$('tbEye').textContent=st.date===day()?'Today’s plan':'Tomorrow’s plan';$('tbNext').textContent=st.date===day()?'Plan tomorrow →':'← Back to today';$('tbDlLabel').textContent='Download '+(st.date===day()?'today’s':'tomorrow’s')+' timebox (JPG)';$('tbDate').innerHTML='<span class="long">'+esc(dateObj().toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'}))+'</span>';
   ov.querySelectorAll('.tb-in').forEach(function(el){el.value=st.pri[+el.dataset.p]||''});
   $('tbDump').value=st.dump;$('tbNotes').value=st.notes;
-  ov.querySelectorAll('textarea[data-slot]').forEach(function(ta){ta.value=st.slots[ta.dataset.slot]||'';grow(ta)});renderPie();
+  ov.querySelectorAll('textarea[data-slot]').forEach(function(ta){ta.value=st.slots[ta.dataset.slot]||'';grow(ta)});renderPie();syncHeld();
 }
 function markNow(){
   var ov=$('tbx');if(!ov)return;ov.querySelectorAll('.now').forEach(function(e){e.classList.remove('now')});
@@ -3036,7 +3094,7 @@ function toast(msg){var t=$('tbToast');if(!t)return;t.textContent=msg;t.classLis
 function open(){viewDate=day();var r=load(viewDate);fill();var ov=$('tbx');ov.classList.add('open');ov.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';isOpen=true;markNow();
   setTimeout(scrollNow,60);if(r==='reset')toast('A new day. Yesterday’s timebox has been cleared.');
   if(!tick)tick=setInterval(heartbeat,20000)}
-function close(){flush();if(paint)setPaint(false);closeCats();var ov=$('tbx');ov.classList.remove('open');ov.setAttribute('aria-hidden','true');document.body.style.overflow='';isOpen=false}
+function close(){flush();if(paint)setPaint(false);if(moving)setMove(false);closeCats();var ov=$('tbx');ov.classList.remove('open');ov.setAttribute('aria-hidden','true');document.body.style.overflow='';isOpen=false}
 function heartbeat(){if(viewDate===day()&&st&&st.date!==day()){flush();load(day());if(isOpen){fill();toast('Midnight passed. A fresh timebox is ready.')}return}if(isOpen)markNow()}
 
 /* ---------- events ---------- */
@@ -3058,16 +3116,20 @@ function wire(){
   $('tbCats').addEventListener('click',openCats);$('tbmX').addEventListener('click',closeCats);$('tbm').addEventListener('click',function(e){if(e.target===this)closeCats()});
   $('tbAdd').addEventListener('click',addCat);$('tbNewN').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addCat()}});
   $('tbPal').addEventListener('click',function(){setPaint(!paint)});
+  $('tbEye').addEventListener('click',function(){setHide(!hideCol)});$('tbLock').addEventListener('click',function(){setLock(!locked)});
+  $('tbMove').addEventListener('click',function(){setMove(!moving)});$('tbUndo').addEventListener('click',undo);$('tbTrash').addEventListener('click',trash);document.addEventListener('pointermove',function(e){if(held)gpos(e.clientX,e.clientY)});
+  try{hideCol=localStorage.getItem(HK)==='1';locked=localStorage.getItem(LK)==='1'}catch(e){}setHide(hideCol,true);setLock(locked,true);
   $('tbBrush').addEventListener('click',function(e){var b=e.target.closest('.tb-chip');if(!b)return;brushId=b.getAttribute('data-b');renderBrush()});
   var tl=$('tbmList');
   tl.addEventListener('input',function(e){var r=e.target.closest('.tbm-row'),c=r&&catById(r.dataset.id);if(!c)return;if(e.target.type==='color')c.color=e.target.value;else c.name=e.target.value;saveCats();refreshCells();renderBrush();renderPie()});
   tl.addEventListener('click',function(e){var d=e.target.closest('.tbm-del'),r=d&&d.closest('.tbm-row');if(!r)return;cats=cats.filter(function(c){return c.id!==r.dataset.id});saveCats();renderList();refreshCells();renderBrush();renderPie()});
   /* click = paint (brush on) / triple-click = strike through */
   ov.addEventListener('click',function(e){var c=e.target.closest&&e.target.closest('.tb-cell');if(!c)return;var k=c.dataset.k;
+    if(moving){mvClick(k,e.clientX,e.clientY);return}
     if(paint){if(brushId)st.cat[k]=brushId;else delete st.cat[k];paintCell(c);renderPie();queueSave();return}
     if(e.detail===3&&st.slots[k]){if(st.done[k])delete st.done[k];else st.done[k]=1;paintCell(c);queueSave();var t=e.target;if(t.setSelectionRange)t.setSelectionRange(t.value.length,t.value.length)}});
-  $('tbClear').addEventListener('click',function(){if(confirm('Clear everything on this timebox?')){st=fresh(viewDate);persist();fill();toast('This page is clear.')}});
-  document.addEventListener('keydown',function(e){if(isOpen&&e.key==='Escape'){if(!$('tbm').hidden)closeCats();else close()}});
+  $('tbClear').addEventListener('click',function(){if(locked){toast('Unlock first to clear.');return}if(confirm('Clear everything on this timebox?')){st=fresh(viewDate);persist();fill();toast('This page is clear.')}});
+  document.addEventListener('keydown',function(e){if(isOpen&&e.key==='Escape'){if(!$('tbm').hidden)closeCats();else if(held){held=null;ui()}else if(moving)setMove(false);else close()}});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)heartbeat()});
   window.addEventListener('pagehide',flush);
   $('tbfab').addEventListener('click',open);
