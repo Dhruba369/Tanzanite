@@ -980,7 +980,7 @@ body.at-home .quest-dock{display:flex;animation:hup .7s var(--ease) .08s both}
 
 <details><summary>The timer</summary>
 <ul><li><b>Study:</b> stopwatch or countdown. When you stop, say what you studied and it is saved to your log. Pause, resume or discard any time.</li>
-<li><b>Break:</b> a rest timer. Nothing is logged.</li>
+<li><b>Break:</b> a rest timer. The time you rest is added to today's log.</li>
 <li><b>Spendature:</b> pick an item you bought in the Marketplace and it counts down. The item is marked used when you start; if you cancel, it returns to My items.</li>
 <li>Countdowns beep and vibrate at the end. The timer keeps running if you close the tab, and the live time shows in the tab title. After every study session, rate its workflow from 1 (Distracted) to 5 (Productive). This rating is tracked separately and does not affect Stardust. Sessions under a minute are not logged.</li></ul></details>
 
@@ -1474,7 +1474,7 @@ var KP={study:["Contemplating","Climbing a hill","Reaching for the crown","Sharp
 var KT=["Breathe deep: in for 4, hold for 4, out for 6.","Refill your water bottle and take a few sips.","Stand up and stretch your arms overhead.","Roll your shoulders and loosen your neck.","Look out a window and rest your eyes on something far away.","Walk around for a minute and shake out your legs.","Unclench your jaw and relax your hands.","Grab a small, healthy snack if you are hungry.","Close your eyes for a moment and let your mind go quiet.","Check your posture: feet flat, back tall, shoulders down."];
 function tmTip(){return KT[Math.floor(tmEl()/20000)%KT.length];}
 function tmFabText(c){var a=KP[TM.k]||[""],ph=TM.t0?a[Math.floor(tmEl()/30000)%a.length]:"Paused";return KI[TM.k]+" "+ph+" "+c;}
-var KD={study:"Logs the time to your study log","break":"Rest timer, nothing is logged",spend:"Count down time on something you bought"};
+var KD={study:"Logs the time to your study log","break":"Rest timer, counted in your log time",spend:"Count down time on something you bought"};
 try{var tj=JSON.parse(localStorage.getItem(TMK)||"null");if(tj&&tj.k&&KN[tj.k])TM=tj;}catch(e){}
 function tmSave(){try{if(TM)localStorage.setItem(TMK,JSON.stringify(TM));else localStorage.removeItem(TMK);}catch(e){}try{if(TQ)localStorage.setItem(TMK+"q",JSON.stringify(TQ));else localStorage.removeItem(TMK+"q");}catch(e){}}
 function tmEl(){return TM?TM.acc+(TM.t0?Date.now()-TM.t0:0):0;}
@@ -1584,7 +1584,7 @@ function tmAct(b){
   if(k==="pause"&&TM&&TM.t0){TM.acc=tmEl();TM.t0=null;tmSave();tmRender();return;}
   if(k==="resume"&&TM&&!TM.over){TM.fin=0;TM.t0=Date.now();tmSave();tmRender();return;}
   if(k==="stop"&&TM){TM.acc=Math.min(tmEl(),TM.dir==="down"?TM.dur*1000:Infinity);TM.t0=null;TM.fin=1;TU.dis=false;tmSave();tmRender();return;}
-  if(k==="close"){if(TM&&TM.k==="break"&&TM.bk&&window.tmBrkDone(true))return;if(TQ){if(TM&&TM.k==="break"){TQ.bms=(TQ.bms||0)+Math.min(tmEl(),TM.dur*1000);}TM=TQ;TQ=null;TU.dis=false;tmSave();tmRender();return;}TM=null;TU.k="";TU.dis=false;tmSave();tmRender();return;}
+  if(k==="close"){if(TM&&TM.k==="break"&&TM.bk&&window.tmBrkDone(true))return;if(TQ){if(TM&&TM.k==="break"){TQ.bms=(TQ.bms||0)+Math.min(tmEl(),TM.dur*1000);}TM=TQ;TQ=null;TU.dis=false;tmSave();tmRender();return;}if(TM&&TM.k==="break"&&window.tmLogBrk)window.tmLogBrk(TM.d,Math.round(Math.min(tmEl(),TM.dur*1000)/60000));TM=null;TU.k="";TU.dis=false;tmSave();tmRender();return;}
   if(k==="discard"){
     if(!TU.dis){TU.dis=true;tmRender();return;}
     if(TM&&TM.k==="break"&&TM.bk&&window.tmBrkDone(false))return;
@@ -1598,7 +1598,7 @@ function tmAct(b){
     if(ms<60000){TU.err="Under a minute, so there is nothing to log. Resume or discard.";tmRender();return;}
     if(!note){TU.err="Write what you studied.";tmRender();return;}
     if(!TU.rating){TU.err="Rate this study session.";tmRender();return;}
-    var d=TM.d,before=0,bm=Math.round((TM.bms||0)/60000);
+    var d=TM.d,before=0,bm=Math.round((TM.bms||0)/60000)+(window.tmTakePB?window.tmTakePB(TM.d):0);
     if(ex){var o=calc().rows.filter(function(q){return q.e.d===d})[0];before=o?o.sd:0;addSess(ex,hrs,note,TU.rating,bm);}
     else L.push(newDay(d,hrs,note,TU.rating,bm));
     var row=calc().rows.filter(function(q){return q.e.d===d})[0];
@@ -2329,6 +2329,11 @@ window.tmCycBreak=function(){
  TM={k:"break",dir:"down",dur:b*60,acc:0,t0:Date.now(),lbl:"",d:today(),fin:0,over:0,cyc:TQ.cyc,cur:TQ.cur};
  tmSave();return true;
 };
+window.tmLogBrk=function(d,m){if(!(m>0))return;var e=L.filter(function(x){return x.d===d})[0];
+ if(e){if(!e.s||!e.s.length)e.s=[{h:e.h,n:e.n,t:"",rating:null}];var ss=e.s[e.s.length-1];ss.bm=(ss.bm||0)+m;save();if(TAB==="log")view();return;}
+ try{var o=JSON.parse(localStorage.getItem("tzpb")||"{}");if(o.d!==d)o={d:d,m:0};o.m=(o.m||0)+m;localStorage.setItem("tzpb",JSON.stringify(o));}catch(x){}
+};
+window.tmTakePB=function(d){try{var o=JSON.parse(localStorage.getItem("tzpb")||"{}");if(o.d===d&&o.m>0){localStorage.removeItem("tzpb");return o.m;}}catch(x){}return 0;};
 window.tmBrkDone=function(rec){
  if(!(TM&&TM.k==="break"&&TM.bk))return false;
  if(rec){var m=Math.round(Math.min(tmEl(),TM.dur*1000)/60000),e=L.filter(function(x){return x.d===TM.bk.d})[0],ss=e&&e.s&&e.s[TM.bk.i];if(ss&&m>0){ss.bm=(ss.bm||0)+m;save();}}
@@ -3068,7 +3073,7 @@ function renderPie(){var el=$('tbPie');if(!el||!st)return;var cnt={},tot=0,k;
     leg+='<div class="tb-lg" style="--cc:'+c.color+'"><i></i><span>'+esc(c.name||'Untitled')+'</span><span>'+fmtH(n)+' <small>'+Math.round(n/tot*100)+'%</small></span></div>'});
   el.innerHTML='<svg class="tb-donut" viewBox="0 0 210 210" role="img" aria-label="Time by category"><circle cx="105" cy="105" r="'+R+'" fill="none" stroke="currentColor" stroke-opacity=".08" stroke-width="26"/>'+seg+'<text x="105" y="102" text-anchor="middle" style="fill:var(--ink);font:800 30px Figtree,system-ui,sans-serif">'+fmtH(tot)+'</text><text x="105" y="124" text-anchor="middle" style="fill:var(--mute);font:700 11px Figtree,system-ui,sans-serif;letter-spacing:.16em">PLANNED</text></svg><div class="tb-leg">'+leg+'</div>'}
 function renderList(){var l=$('tbmList');l.innerHTML=cats.length?cats.map(function(c){return '<div class="tbm-row" data-id="'+c.id+'"><input type="color" value="'+c.color+'" aria-label="Colour"><input class="tbm-in" type="text" maxlength="24" value="'+esc(c.name)+'" aria-label="Category name"><button class="tbm-del" type="button" aria-label="Delete category">'+X_SVG+'</button></div>'}).join(''):'<p class="tbm-empty">No categories yet. Add one below.</p>'}
-function openCats(){if(locked){toast('Unlock first to edit categories.');return}renderList();$('tbm').hidden=false;setTimeout(function(){$('tbNewN').focus()},60)}
+function openCats(){if(locked){toast('The lock is on. Tap the lock button to unlock, then open Categories.');return}renderList();$('tbm').hidden=false;setTimeout(function(){$('tbNewN').focus()},60)}
 function closeCats(){$('tbm').hidden=true}
 function setPaint(on){if(on&&locked){toast('Unlock first to paint blocks.');return}if(on&&moving)setMove(false);if(on&&hideCol)setHide(false,true);if(on&&!cats.length){openCats();toast('Create a category first.');return}paint=on;$('tbx').classList.toggle('paint',on);$('tbPal').setAttribute('aria-pressed',on?'true':'false');$('tbBrush').hidden=!on;if(on)renderBrush()}
 function addCat(){var n=$('tbNewN'),name=n.value.trim();if(!name){n.focus();return}cats.push({id:'c'+Date.now().toString(36)+Math.floor(Math.random()*1e3),name:name,color:$('tbNewC').value});n.value='';saveCats();renderList();renderBrush();renderPie()}
@@ -3118,7 +3123,7 @@ function wire(){
   $('tbPal').addEventListener('click',function(){setPaint(!paint)});
   $('tbEye').addEventListener('click',function(){setHide(!hideCol)});$('tbLock').addEventListener('click',function(){setLock(!locked)});
   $('tbMove').addEventListener('click',function(){setMove(!moving)});$('tbUndo').addEventListener('click',undo);$('tbTrash').addEventListener('click',trash);document.addEventListener('pointermove',function(e){if(held)gpos(e.clientX,e.clientY)});
-  try{hideCol=localStorage.getItem(HK)==='1';locked=localStorage.getItem(LK)==='1'}catch(e){}setHide(hideCol,true);setLock(locked,true);
+  try{hideCol=localStorage.getItem(HK)==='1'}catch(e){}setHide(hideCol,true);setLock(locked,true);
   $('tbBrush').addEventListener('click',function(e){var b=e.target.closest('.tb-chip');if(!b)return;brushId=b.getAttribute('data-b');renderBrush()});
   var tl=$('tbmList');
   tl.addEventListener('input',function(e){var r=e.target.closest('.tbm-row'),c=r&&catById(r.dataset.id);if(!c)return;if(e.target.type==='color')c.color=e.target.value;else c.name=e.target.value;saveCats();refreshCells();renderBrush();renderPie()});
