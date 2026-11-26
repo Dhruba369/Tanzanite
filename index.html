@@ -1532,7 +1532,7 @@ function tmPanelHtml(){
   h=tmHead(KI.study+" Study finished")+'<p class="note">'+(TM.over?"Time is up. ":"")+(TM.pre==="custom"&&TM.cyc>1?"Cycle "+TM.cur+" of "+TM.cyc+". ":"")+'You studied <b>'+dur+'</b> ('+hrs+' h). '+(ex?"This date already has an entry, so the time is added to it.":"")+'</p>';
   h+='<label class="f" for="tmnote">What did you study?</label><textarea id="tmnote" rows="3" placeholder="Chapters, topics, problems solved...">'+esc(TU.note)+'</textarea>';
   h+='<label class="f">How was this study session?</label>'+ratingOptions(TU.rating);
-  h+=(TU.err?'<p class="err">'+esc(TU.err)+'</p>':'')+'<div class="tmrow"><button class="primary" data-tm="savelog">'+(TM.over&&TM.pre==="custom"&&TM.cur<TM.cyc?"Save and start break":"Save to study log")+'</button>'+(TM.over?'':'<button data-tm="resume">Resume</button>')+'<button data-tm="discard">'+(TU.dis?"Press again to confirm":"Discard")+'</button></div>';
+  h+=(TU.err?'<p class="err">'+esc(TU.err)+'</p>':'')+'<div class="tmrow"><button class="primary" data-tm="savelog">'+(TM.over&&((TM.pre==="custom"&&TM.cur<TM.cyc)||(TM.pre&&TM.pre!=="custom"&&window.TZP&&window.TZP[TM.pre]))?"Save and start break":"Save to study log")+'</button>'+(TM.over?'':'<button data-tm="resume">Resume</button>')+'<button data-tm="discard">'+(TU.dis?"Press again to confirm":"Discard")+'</button></div>';
   return h;
 }
 function tmRender(){
@@ -2323,8 +2323,11 @@ window.tmUnlock=function(){try{if(!TVA)TVA=new Audio();TVA.muted=true;TVA.src=TV
 window.tmVoice=function(kind){try{var a=TV[kind];if(!a||!a.length)return;var i;do{i=Math.floor(Math.random()*a.length);}while(a.length>1&&i===TLAST[kind]);TLAST[kind]=i;if(!TVA)TVA=new Audio();TVA.pause();TVA.muted=false;TVA.volume=0.5;TVA.src=a[i];TVA.currentTime=0;var p=TVA.play();if(p&&p.catch)p.catch(function(){});}catch(e){}};
 window.tmBeep=function(){try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}tmVoice(TM&&TM.k==="study"?"study":"brk");};
 window.tmCycBreak=function(){
- if(!TM||TM.k!=="study"||!TM.over||TM.pre!=="custom"||!(TM.cur<TM.cyc))return false;
- var b=TM.cb>0?TM.cb:5;if(TM.cn>0&&TM.cur%TM.cn===0&&TM.clb>0)b=TM.clb;
+ if(!TM||TM.k!=="study"||!TM.over)return false;
+ var b;
+ if(TM.pre==="custom"){if(!(TM.cur<TM.cyc))return false;b=TM.cb>0?TM.cb:5;if(TM.cn>0&&TM.cur%TM.cn===0&&TM.clb>0)b=TM.clb;}
+ else if(TM.pre&&TZP[TM.pre]){b=TZP[TM.pre][1];if(TM.pre==="pomo"){var n=1,t=today();try{var o=JSON.parse(localStorage.getItem("tzpomo")||"{}");n=(o.d===t?o.n:0)+1;localStorage.setItem("tzpomo",JSON.stringify({d:t,n:n}));}catch(e){}if(n%4===0)b=15;}}
+ else return false;
  TQ=Object.assign({},TM);TQ.carry=0;
  TM={k:"break",dir:"down",dur:b*60,acc:0,t0:Date.now(),lbl:"",d:today(),fin:0,over:0,cyc:TQ.cyc,cur:TQ.cur};
  tmSave();return true;
@@ -2349,6 +2352,7 @@ window.tmAutoBrk=function(){
   TQ=null;TU.open=true;tmSave();return;
  }
  if(!TM||TM.k!=="study"||!TM.over||!TM.pre)return;
+ return; /* every countdown: the log form shows first, tmCycBreak starts the break after you save */
  var b;
  if(TM.pre==="custom"){
   return; /* custom: the log form shows first; tmCycBreak starts the break after you save */
